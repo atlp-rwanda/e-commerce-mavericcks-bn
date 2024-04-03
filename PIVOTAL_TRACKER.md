@@ -1,6 +1,3 @@
-# e-commerce-mavericcks-bn
-Backend for team Maverick's e-commerce website
-
 
 # PIVOTAL TRACKER WITH GITHUB BEST PRACTICES 
 [Pivotal Tracker's Docs](https://www.pivotaltracker.com/help/articles/github_integration/#attaching-branches-to-a-story-automatically)

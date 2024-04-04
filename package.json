@@ -2,7 +2,7 @@
   "name": "e-commerce-mavericcks-bn",
   "version": "1.0.0",
   "description": "Backend for team Maverick's e-commerce website",
-  "main": "index.js",
+  "main": "server.ts",
   "scripts": {
     "build": "tsc",
     "dev": "nodemon src/server.ts",

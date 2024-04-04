@@ -1,0 +1,32 @@
+{
+  "name": "e-commerce-mavericcks-bn",
+  "version": "1.0.0",
+  "description": "Backend for team Maverick's e-commerce website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc --watch",
+    "lint": "eslint --ignore-path .eslintignore --ext .js,.ts",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+    "prepare": "husky || true && husky install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.2.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "@types/node": "^20.12.4",
+    "express": "^4.19.2"
+  },
+  "lint-staged": {
+    "**/*.{js,ts}": "eslint --cache --fix",
+    "**/*.+(js|ts|json)": "prettier --write"
+  }
+}

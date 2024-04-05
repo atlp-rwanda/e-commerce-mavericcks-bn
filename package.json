@@ -8,7 +8,7 @@
     "dev": "tsc --watch",
     "format:write": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "format:check": "prettier --ignore-path .gitignore --check",
-    "prepare": "husky || true"
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",

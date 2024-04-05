@@ -6,9 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc --watch",
-    "lint": "eslint --ignore-path .eslintignore --ext .js,.ts",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
-    "prepare": "husky || true && husky install"
+    "format:write": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+    "format:check": "prettier --ignore-path .gitignore --check",
+    "prepare": "husky install && npx husky add .husky/pre-commit \"npx lint-staged\""
   },
   "keywords": [],
   "author": "",

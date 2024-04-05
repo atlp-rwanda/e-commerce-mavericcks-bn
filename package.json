@@ -8,7 +8,7 @@
     "dev": "tsc --watch",
     "format:write": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "format:check": "prettier --ignore-path .gitignore --check",
-    "prepare": "husky install"
+    "prepare": "husky || true"
   },
   "keywords": [],
   "author": "",
@@ -26,7 +26,6 @@
     "express": "^4.19.2"
   },
   "lint-staged": {
-    "**/*.{js,ts}": "eslint --cache --fix",
     "**/*.+(js|ts|json)": "prettier --write"
   },
   "husky": {

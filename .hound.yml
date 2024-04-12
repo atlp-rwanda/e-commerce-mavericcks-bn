@@ -1,0 +1,9 @@
+# the files and directories that should be ignored by HoundCI.
+ignore:
+  - node_modules/
+# the rules that HoundCI should follow for TypeScript files.
+typescript:
+  linter: eslint
+  config_file: .eslintrc.json
+  extensions:
+    - .ts

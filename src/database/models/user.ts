@@ -1,5 +1,5 @@
 import { Model, Optional, DataTypes, UUIDV4 } from 'sequelize';
-import db from './index';
+import { sequelize } from './index';
 
 interface UserAttributes {
   id: string;
@@ -48,7 +48,7 @@ User.init(
       allowNull: false,
     },
   },
-  { sequelize: db.sequelize, timestamps: true }
+  { sequelize: sequelize, timestamps: true }
 );
 
 export default User;

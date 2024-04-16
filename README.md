@@ -4,93 +4,153 @@
 
 Backend for team Maverick's e-commerce website
 
-# PIVOTAL TRACKER WITH GITHUB BEST PRACTICES
+## Table of Contents
+
+1. [Project Overview](#1)
+2. [User Categories/Roles](#2)
+3. [Features found on the platform](#3)
+4. [Tech Stack](#4)
+5. [Installation](#5)
+6. [Pivotal Tracker with GitHub Best Practices](#6)
+7. [Setting up Swagger Documentations](#7)
+
+<a id = "1"> </a>
+
+## Project Overview
+
+A platform providing a marketplace for buyers and sellers to meet:
+
+The platform serves as a meeting point for buyers and sellers, where each seller operates a virtual "stall" showcasing their products. Sellers have full control over their inventory, allowing them to manage stock levels, adjust prices, and offer discounts. Despite similarities, different sellers can offer identical items.
+
+Shoppers can freely navigate between stalls to find the best deals, selecting items from various sellers and adding them to their shopping bag. They can modify their bag's contents as they browse. Payments are processed at checkout, and items can be returned to the stall before purchase. Market owners and administrators have comprehensive access, enabling them to view all sellers' stock and inspect shoppers' bags.
+
+<a id = "2"> </a>
+
+## User Categories/Roles
+
+1. **Guest:** Anyone who has not yet signed in to the platform.
+
+2. **User/Buyer:** Someone who has an account but also is willing to buy products via the platform.
+
+3. **Vendor:** someone with an account but and has products to sell via the platform.
+
+4. **Admins:** someone who has access to the platforms functionality and able to change user roles.
+   <a id = "3"> </a>
+
+## Features found on the platform
+
+- Users/guests should be able to view all items.
+- Guests should be able to sign up.
+- Admins should be able to change user roles.
+- Users/Vendors/Admins should be able to log in.
+- Users should be able to manage their cart.
+- Users should be able to buy items from the platform.
+- Users should be able to rate the platform/specific vendors.
+- Guests should be able to send questions or queries using a contact form provided on the site.
+- Vendors should be able to fully manage their stock.
+- Users should be able to effect payments/checkout.
+- Online payment with a credit/debit card.
+- Mobile money payments.
+- On delivery payments. - Across the counter payments.
+
+<a id = "4"> </a>
+
+## Tech Stack
+
+- **Node.js:** Backend environment for server-side logic.
+- **Express.js:** Web application framework for Node.js.
+- **PostgreSQL:** Relational database management system.
+- **Typescript:** Supercript of JavaScript used as for back-end programming.
+
+<a id = "5"> </a>
+
+## Installation
+
+Being able to access the e-commerce-mavericcks-bn backe-end:
+
+1.  Clone the repository
+
+    - Using HTTPS :
+
+    ```
+    git clone https://github.com/atlp-rwanda/e-commerce-mavericcks-bn.git
+    cd e-commerce-mavericcks-bn
+    ```
+
+    - Using SSH :
+
+    ```
+    git clone git@github.com:atlp-rwanda/e-commerce-mavericcks-bn.git
+    cd e-commerce-mavericcks-bn
+    ```
+
+2.  Installing depedencies:
+
+`npm install `
+
+3.  Copy the environment configuration:
+
+`cp .env.example .env`
+
+Update the values of `.env` file with your configurations
+
+<a id = "6"> </a>
+
+## Pivotal Tracker with GitHub Best Practices
 
 [Pivotal Tracker's Docs](https://www.pivotaltracker.com/help/articles/github_integration/#attaching-branches-to-a-story-automatically)
 
-Welcome! This document will guide you through what are the best practices during making sure that your works are available in Pivotal tracker, and of course if they are matching with provided tasks.
+Welcome! This document will guide you through the best practices for ensuring that your work is available in Pivotal Tracker and matches the provided tasks.
 
-## NAMING CONVENTIONS
+## Naming Conventions
 
 ### Branches
 
-If you create a branch from the command line and include the story id in the branch name, Tracker will automatically attach a branch to the story.
+When creating a branch, include the story ID in the branch name to automatically attach it to the story in Tracker.
 
-For example, creating a branch with the name `123123-super-cool-feature` will attach it to the story with id 123123.
+**Best Practices for Branch Names:**
+
+1. No uppercase letters; use hyphens instead of spaces.
+2. Start with the Pivotal Tracker story ID (if connecting to a specific story).
+3. Use prefixes:
+
+- `ch` for chores.
+- `fit` for features.
+- `bg-fix` for bug fixes.
+
+4. Keep names short and consistent with the feature you're working on.
 
 ### Commits
 
-Add the Tracker story id with a preceding hash symbol within square brackets at the end of your commit message.
-Optionally, you can include a state change for the Tracker story within the brackets.
-Currently, there are two state changes supported:
+Follow these practices for commit messages:
 
-1. **Finished** and
-2. **Delivered.**
+1. Start with a verb in the imperative mood describing the change.
+2. Keep the subject line concise (under 50 characters).
+3. Explain the reason for the change, not just the mechanics.
+4. Aim for single, logical changes per commit.
+5. Capitalize the first letter of the subject line and any following words.
 
-For example, including “Finishes” or “Fixes” in your commit message will change the specified story to the Finished state, while “Delivers” will change the specified story to Delivered state.
-
-**SYNTAX:** `[(Finishes|Fixes|Delivers) #TRACKER_STORY_ID]`
-
-**_E.G:_** `git commit -m "[finishes #123123] Updated settings for holograph projector"`
-This will mark the story with id: _123123_ as _Finished._
-
-You can specify multiple story ids in a commit by separating each id with a comma or space, within square brackets. However, all story ids will show in the commit on all specified stories.
-
-**SYNTAX:** `[#TRACKER_STORY_ID,#TRACKER_STORY_ID]` or `[#TRACKER_STORY_ID #TRACKER_STORY_ID]`
-
-Alternatively, you can place each story id in its on set of square brackets, and separate each set of brackets with a comma or space. This will prevent story ids from showing up in non-related stories.
-
-**SYNTAX:** `[#TRACKER_STORY_ID],[#TRACKER_STORY_ID]` or `[#TRACKER_STORY_ID] [#TRACKER_STORY_ID]`
+Example commit message: `git commit -m "[finishes #123123] Updated settings for holograph projector"`
 
 ### Pull Requests
 
-Tracker will automatically attach a pull request to a story if the name of the branch that is being merged starts with that story’s ID, as described in Attaching Branches to a Story Automatically above.
+Attach pull requests to stories automatically by starting the branch name with the story's ID.
 
-## BEST PRACTICES WHILE NAMING
+<a id = "7"> </a>
 
-### Branches
+## Setting up Swagger Documentations
 
-Here are some best practices to name a branch while working as a team.
+If setting up Swagger for the first time, follow these steps:
 
-1. Remember, no upercases, and spaces should be replaced with hyphen.
-2. Start with Pivotal tracker's story id. (If you want to connect it with certain story.)
-3. COntinue with prefix for what you are working on:
-   1. `ch` for chores.
-   2. `fit` for features.
-   3. `bg-fix` for bug fixes.
-4. Keep the name short.
-5. Be consistent. Follow just one convention.
-6. Finally, make sure that the name matches the feature that you have worked on.
+1. Navigate to the location `src/docs`.
+2. Create a `.yaml` file.
+3. Write your documentation in the file.
+4. No need to set up Swagger-related things in `server.ts` again.
 
-### Commits
+**Note:** YAML strictly follows indentations, so ensure you follow them.
 
-During commiting, make sure you follow these practices.
+## Useful Links
 
-1. Start the subject line with a verb in the imperative mood that describes the change introduced by the commit.
-   > Examples: "Fix", "Add", "Implement", "Refactor", etc.
-2. Keep the subject line concise, ideally under 50 characters. This ensures readability in various Git tools.
-3. Explain the reason for the change, not just the mechanics.
-4. Aim for commits that represent a single, logical change. This makes it easier to understand the code history.
-5. Capitalize the first letter of the subject line and any following words.
-
-By following all of those listed conventions, as well as best practices, you will not only be able to provide readable, maintainable, and well-written codes, but also help your colleagues.
-
-#### Useful links
-
-1. [Pivotal Tracker's Offical Documentation](https://www.pivotaltracker.com/help/articles/github_integration/#attaching-branches-to-a-story-automatically)
+1. [Pivotal Tracker's Official Documentation](https://www.pivotaltracker.com/help/articles/github_integration/#attaching-branches-to-a-story-automatically)
 2. [freeCodeCamp Article on Naming Commits](https://www.freecodecamp.org/news/writing-good-commit-messages-a-practical-guide/)
-3. [Medium article on Naming Branches](https://medium.com/@abhay.pixolo/naming-conventions-for-git-branches-a-cheatsheet-8549feca2534)
-
-# Setting up Swagger Documentations
-
-If this is your first time to setup your swagger documentaions, you will need to follow the following steps. Since Everything is set up, you don't need to set them up again. All you need is to intergrate your `.yaml` files in src/docs.
-Checkout the detailed steps.
-
-## Steps to setup your swagger documentations.
-
-1. Since you have cloned files from github, you will have to navigate to the location: src/docs.
-2. After reaching there create the file with extension `.yaml`.
-3. _Open that file, and write all your documentations._
-4. Everything wiil be perfect after that. You don't need to set things related to the swagger documentaions in server.ts again.
-
-### **Keep in mind, you are writing in `.yaml` and it strictly follows indentations so make sure you follow them too.**
+3. [Medium Article on Naming Branches](https://medium.com/@abhay.pixolo/naming-conventions-for-git-chores-a-cheatsheet)

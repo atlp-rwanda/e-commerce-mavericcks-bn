@@ -32,6 +32,14 @@ const applyCustomFormat = (loggerInstance: Logger) => {
     }
   });
 };
+// Function to create a transports with a common configuration
+const createCommonTransport = (filename: string, level: string) => {
+  return new transports.File({
+    filename,
+    level,
+    format: format.combine(format.timestamp({ format: 'DD/MM/YYYY - HH:mm:ss' }), format.json()),
+  });
+};
 
 // Create a logger instance
 const logger = createLogger({
@@ -51,11 +59,7 @@ const logger = createLogger({
         })
       ),
     }),
-    new transports.File({
-      filename: './src/logs/system.log',
-      level: 'info',
-      format: format.combine(format.timestamp({ format: 'DD/MM/YYYY - HH:mm:ss' }), format.json()),
-    }),
+    createCommonTransport('./src/logs/system.log', 'info'),
   ],
 });
 // Apply custom format function to all transports
@@ -68,11 +72,7 @@ export const errorLogger = createLogger({
       level: 'error',
       format: format.combine(format.colorize(), format.json(), format.timestamp({ format: 'DD/MM/YYYY - HH:mm:ss' })),
     }),
-    new transports.File({
-      filename: './src/logs/error.log',
-      level: 'error',
-      format: format.combine(format.timestamp({ format: 'DD/MM/YYYY - HH:mm:ss' }), format.json()),
-    }),
+    createCommonTransport('./src/logs/error.log', 'error'),
   ],
 });
 

@@ -25,6 +25,7 @@ app.use(
 );
 
 app.get('/', (req: Request, res: Response): void => {
+  logger.error('Testing logger');
   res.send('Welcome at Mavericks E-commerce Website Apis');
 });
 

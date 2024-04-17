@@ -1,0 +1,27 @@
+version: v1.0
+name: Initial Pipeline
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: Test
+    task:
+      jobs:
+        - name: Test
+          commands:
+            - checkout
+            - 'curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter'
+            - chmod +x ./cc-test-reporter
+            - ./cc-test-reporter before-build
+            - npm --version
+            - node --version
+            - npm install
+            - npm run test
+      env_vars:
+        - name: CC_TEST_REPORTER_ID
+          value: "a86bb95fd561a296c9324cbd87c994a07cf561e5cb9bc82cabc40069c5e82a2b"
+      epilogue:
+        always:
+          commands:
+            - ./cc-test-reporter format-coverage -t lcov 

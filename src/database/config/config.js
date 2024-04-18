@@ -9,6 +9,7 @@ module.exports = {
 
     dialect: process.env.DEV_DB_DRIVER,
     port: process.env.DEV_DB_PORT,
+    host: process.env.DEV_DB_HOST,
   },
   test: {
     username: process.env.TEST_DB_USER,

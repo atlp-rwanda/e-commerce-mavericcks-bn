@@ -8,7 +8,7 @@
     "copy-js": "node src/helpers/copy-js.js",
     "dev": "cross-env NODE_ENV=development nodemon src/server.ts",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "test": "cross-env NODE_ENV=test jest --verbose",
+    "test": "cross-env NODE_ENV=test jest --coverage",
     "lint": "eslint --ignore-path .eslintignore \"**/*.{js,ts}\"",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "prepare": "husky install && npx husky add .husky/pre-commit \"npx lint-staged\" && npx husky add .husky/pre-commit \"npm test\"",

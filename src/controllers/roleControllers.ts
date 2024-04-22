@@ -1,35 +1,33 @@
 import logger from '../logs/config';
 import { Request, Response } from 'express';
 import Role from '../database/models/role';
-
+import { trimSpaces } from '../validations/validation';
 const createRole = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, displayName } = req.body;
-    const createdRole = await Role.create({ name, displayName });
-
-    res.send(createdRole);
+    const createdRole = await Role.create({ name: trimSpaces(name), displayName });
+    res.status(201).json({ ok: true, data: createdRole, message: 'Role successfully created' });
   } catch (error) {
     logger.info(error);
-    res.send('Role could not be created successfully');
+    res.status(400).json({ ok: false, data: error, message: 'Role could not be created successfully' });
   }
 };
 const getAllRoles = async (req: Request, res: Response): Promise<void> => {
   try {
     const roles = await Role.findAll();
-    res.send(roles);
+    res.status(200).json({ ok: true, data: roles, message: 'Roles found successfully' });
   } catch (error) {
     logger.info(error);
-    res.send(`Roles can't be found`);
+    res.status(404).json({ ok: false, data: error, message: `Roles can't be found` });
   }
 };
 const getSingleRole = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   try {
     const role = await Role.findByPk(id);
-    res.send(role);
+    res.status(200).json({ ok: true, data: role, message: 'Role found successfully' });
   } catch (error) {
-    res.send('Role could not be found');
-    logger.info(error);
+    res.status(404).json({ ok: false, data: error, message: 'Role could not be found' });
   }
 };
 const updateRole = async (req: Request, res: Response): Promise<void> => {
@@ -38,7 +36,8 @@ const updateRole = async (req: Request, res: Response): Promise<void> => {
   try {
     const roleToupdate = await Role.findByPk(id);
     if (!roleToupdate) {
-      res.status(404).send('Role not found');
+      res.status(404).json({ ok: false, data: null, message: 'Role to update could not be found' });
+
       return;
     }
     if (contentsToUpdate.name) {
@@ -50,7 +49,7 @@ const updateRole = async (req: Request, res: Response): Promise<void> => {
     await roleToupdate.save();
   } catch (error) {
     logger.info(error);
-    res.send('Error! Could not be updated');
+    res.status(500).json({ ok: false, data: error, message: 'Role could not be updated!' });
   }
 };
 const deleteRole = async (req: Request, res: Response): Promise<void> => {
@@ -58,13 +57,13 @@ const deleteRole = async (req: Request, res: Response): Promise<void> => {
   try {
     const deletedCount = await Role.destroy({ where: { id } });
     if (deletedCount === 1) {
-      res.status(200).send('Role deleted successfully');
+      res.status(200).json({ ok: true, data: deletedCount, message: 'Role deleted successfully' });
     } else {
-      res.status(404).send('Role not found');
+      res.status(404).json({ ok: false, data: null, message: 'Role not found' });
     }
   } catch (error) {
     logger.error(error);
-    res.status(500).send('Error! Could not delete role');
+    res.status(500).json({ ok: false, data: error, message: 'Role not found' });
   }
 };
 

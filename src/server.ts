@@ -9,6 +9,7 @@ import routes from './routes';
 import logger, { errorLogger } from './logs/config';
 import expressWinston from 'express-winston';
 import databaseConnection from './database';
+import { ErrorHandler } from './helpers/errorHandler';
 
 dotenv.config();
 const app: Application = express();
@@ -18,6 +19,7 @@ const swaggerSpec = swaggerJsDoc(options);
 
 app.use('/api', routes);
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+app.use(ErrorHandler);
 
 const PORT = process.env.PORT ?? 3000;
 

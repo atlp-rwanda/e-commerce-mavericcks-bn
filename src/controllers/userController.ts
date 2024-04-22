@@ -1,27 +1,25 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import User from '../database/models/user';
 import logger from '../logs/config';
 
-const createUser = async (req: Request, res: Response): Promise<void> => {
-  try {
-    // Extract user data from request body
-    const { firstName, lastName, email, password } = req.body;
+import { asyncMiddleware } from '../middlewares/asyncMiddleware';
+import AppError from '../helpers/AppError';
 
-    // Create a new user
-    const newUser = await User.create({
-      firstName,
-      lastName,
-      email,
-      password,
-    });
-
-    // Send success response with the newly created user
-    res.status(201).json(newUser);
-  } catch (error) {
-    // Handle errors
-    logger.error('Error adding user:', error);
-    res.status(500).send('Internal Server Error');
+const createUser = asyncMiddleware(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  // Extract user data from request body
+  const { firstName, lastName, email, password } = req.body;
+  if (!firstName || !lastName || !email || !password) {
+    logger.error('Please provide firstName, lastName, email, and Password');
+    return next(new AppError('Please provide firstName, lastName, email, and Password', 400));
   }
-};
+  // Create a new user
+  const newUser = await User.create({
+    firstName,
+    lastName,
+    email,
+    password,
+  });
+  res.status(201).json(newUser);
+});
 
 export { createUser };

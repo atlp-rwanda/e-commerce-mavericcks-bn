@@ -1,3 +1,4 @@
+import cors from 'cors';
 import type { Application, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -12,6 +13,8 @@ import databaseConnection from './database';
 
 dotenv.config();
 const app: Application = express();
+// use cors
+app.use(cors());
 
 app.use(express.json());
 const swaggerSpec = swaggerJsDoc(options);

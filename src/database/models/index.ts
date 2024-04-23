@@ -11,6 +11,7 @@ const dbConfig = config[env];
 const sequelize = new Sequelize(dbConfig.database!, dbConfig.username!, dbConfig.password!, {
   dialect: dbConfig.dialect! as Dialect,
   host: dbConfig.host || 'localhost',
+  port: dbConfig.port,
 });
 
 export default sequelize;

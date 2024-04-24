@@ -18,7 +18,7 @@ const app: Application = express();
 app.use(cors());
 app.use(passport.initialize());
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 const swaggerSpec = swaggerJsDoc(options);
 app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 

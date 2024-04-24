@@ -8,6 +8,7 @@ config();
 interface IData {
   email: string;
   name: string;
+  link?: string;
 }
 
 const { EMAIL, PASSWORD } = process.env;
@@ -40,24 +41,24 @@ export const sendEmail = async (type: string, data: IData) => {
     let email;
 
     switch (type) {
-      case 'administrator_account_verification':
+      case 'account_verify':
         email = {
           body: {
             name: data.name,
-            intro: "Welcome to Mailgen! We're very excited to have you on board.",
+            intro: "Welcome to Mavericks E-Commerce! We're very excited to have you on board.",
             action: {
-              instructions: 'To get started with Mailgen, please click here:',
+              instructions: 'To verify your acccount on Mavericks, please click here:',
               button: {
                 color: '#22BC66',
                 text: 'Confirm your account',
-                link: 'https://mailgen.js/confirm?s=d9729feb74992cc3482b350163a1a010',
+                link: `${data.link}`,
               },
             },
             outro: "Need help, or have questions? Just reply to this email, we'd love to help.",
           },
         };
 
-        mailOptions.subject = 'this is a subject';
+        mailOptions.subject = 'Account confirmation';
         mailOptions.html = mailGenerator.generate(email);
         break;
 

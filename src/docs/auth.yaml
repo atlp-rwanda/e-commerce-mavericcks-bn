@@ -3,6 +3,8 @@ paths:
   /api/auth/google:
     get:
       summary: Authenticate with Google
+      tags:
+        - Login
       description: |
         Initiates the authentication process with Google OAuth 2.0.
         Users will be redirected to Google's authentication page to log in.
@@ -54,5 +56,3 @@ paths:
 tags:
   - name: Login
     description: Login a user
-  - name: Google Authentication
-    description: Google authentication

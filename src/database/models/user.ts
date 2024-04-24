@@ -20,7 +20,7 @@ export interface UserAttributes {
   phoneNumber: string;
   googleId?: string;
   photoUrl?: string;
-  verified: boolean;
+  verified?: boolean;
   status?: UserStatus;
   createdAt?: Date;
   updatedAt?: Date;

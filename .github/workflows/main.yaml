@@ -1,0 +1,65 @@
+on:
+    push:
+      branches: [develop]
+  
+jobs:
+    test:
+      name: Test
+      runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          node-version: [20]
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Use Node.js ${{ matrix.node-version }}
+          uses: actions/setup-node@v2
+          with:
+            node-version: ${{ matrix.node-version }}
+        - name: NPM install, build and test
+          run: |
+            npm install
+            npm test
+          env:
+            DB_USER: ${{ secrets.DEV_DB_USER }}
+            DB_PASSWORD: ${{ secrets.DEV_DB_PASSWORD }}
+            DB_HOST: ${{ secrets.DEV_DB_HOST }}
+  
+    build:
+      name: Build
+      needs: [test]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Use Node.js ${{ matrix.node-version }}
+          uses: actions/setup-node@v2
+          with:
+            node-version: ${{ matrix.node-version }}
+        - name: NPM install and build
+          run: |
+            npm install
+            npm run build
+  
+    deploy:
+      name: Deploy
+      needs: [build]
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Use Node.js ${{ matrix.node-version }}
+          uses: actions/setup-node@v2
+          with:
+            node-version: ${{ matrix.node-version }}
+        - name: Deploy to development
+          uses: johnbeynon/render-deploy-action@v0.0.8
+          with:
+            service-id: ${{ secrets.SERVICE_ID }}
+            api-key: ${{ secrets.RENDER_API_KEY }}

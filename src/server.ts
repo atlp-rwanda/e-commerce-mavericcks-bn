@@ -6,7 +6,7 @@ import swaggerUI from 'swagger-ui-express';
 import swaggerJsDoc from 'swagger-jsdoc';
 import options from './docs/swaggerdocs';
 import routes from './routes';
-
+import userRoute from './routes/userRoute';
 import logger, { errorLogger } from './logs/config';
 import expressWinston from 'express-winston';
 import databaseConnection from './database';
@@ -17,19 +17,14 @@ const app: Application = express();
 app.use(cors());
 
 app.use(express.json());
+
+// Mounting routes
+app.use('/', routes);
+app.use('/api', userRoute);
+
 const swaggerSpec = swaggerJsDoc(options);
+app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
-app.use('/api', routes);
-app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-
-const PORT = process.env.PORT ?? 3000;
-
-/**
- * By placing express-winston middleware before defining routes,
- * we ensure that all HTTP requests and responses are logged
- * before they are handled by the application's routes.
- * This allows us to capture comprehensive logs of incoming
- * requests and outgoing responses for monitoring and debugging purposes. */
 app.use(
   expressWinston.logger({
     winstonInstance: logger,
@@ -42,23 +37,19 @@ app.get('/', (req: Request, res: Response): void => {
   res.send('Welcome at Mavericks E-commerce Website Apis');
 });
 
-/**
- * By placing express-winston middleware after defining routes,
- * we ensure that it captures any errors that occur during route handling.
- * This allows us to log detailed error information, including stack traces,
- * status codes, and error messages, for effective debugging and monitoring.
- */
 app.use(
   expressWinston.errorLogger({
     winstonInstance: errorLogger,
   })
 );
+
 app.all('*', (req: Request, res: Response): void => {
   res.status(404).json({ message: 'route not found' });
 });
 
 databaseConnection();
 
+const PORT = process.env.PORT ?? 3000;
 app.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT}`);
 });

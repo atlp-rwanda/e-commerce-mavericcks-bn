@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -11,7 +14,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: `${process.env.URL_HOST}:${process.env.PORT}`,
       },
     ],
   },

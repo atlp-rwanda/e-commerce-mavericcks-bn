@@ -1,13 +1,22 @@
-tags:
-  - name: Login
-    description: login a user
-paths:      
+paths:
+
+  /api/auth/google:
+    get:
+      summary: Authenticate with Google
+      description: |
+        Initiates the authentication process with Google OAuth 2.0.
+        Users will be redirected to Google's authentication page to log in.
+      responses:
+        '302':
+          description: Redirects the user to Google's authentication page
+      security: []
+
   /api/auth/login:
     post:
       summary: User Login
       tags: 
         - Login
-      description: Authenticate user email and password and generate access token.
+      description: Authenticate user email and password and generate access token
       requestBody:
         description: User credentials for authentication
         required: true
@@ -41,4 +50,9 @@ paths:
           description: User not found or incorrect credentials
         500:
           description: Internal server error
-  
+
+tags:
+  - name: Login
+    description: Login a user
+  - name: Google Authentication
+    description: Google authentication

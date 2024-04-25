@@ -1,27 +1,28 @@
-import cors from 'cors';
-import type { Application, Request, Response } from 'express';
+import { Application, Request, Response } from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import express from 'express';
 import swaggerUI from 'swagger-ui-express';
 import swaggerJsDoc from 'swagger-jsdoc';
 import options from './docs/swaggerdocs';
 import routes from './routes';
+import passport from './config/passport';
 import logger, { errorLogger } from './logs/config';
 import expressWinston from 'express-winston';
 import databaseConnection from './database';
 
 dotenv.config();
+
 const app: Application = express();
-// use cors
+
 app.use(cors());
-
+app.use(passport.initialize());
 app.use(express.json());
-
-// Mounting routes
-app.use('/api', routes);
 
 const swaggerSpec = swaggerJsDoc(options);
 app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
+app.use('/api', routes);
 
 app.use(
   expressWinston.logger({

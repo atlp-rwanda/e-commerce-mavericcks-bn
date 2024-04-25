@@ -61,6 +61,48 @@ export const sendEmail = async (type: string, data: IData) => {
         mailOptions.html = mailGenerator.generate(email);
         break;
 
+      case 'User_Account_Blocked':
+        email = {
+          body: {
+            name: data.name,
+            intro: 'Your account has been blocked due to violation of our terms and conditions.',
+            action: {
+              instructions: 'If you believe this is an error, please contact support at support@yourapp.com.',
+              button: {
+                color: '#22BC66',
+                text: 'Contact Support',
+                link: 'mailto:support@yourapp.com',
+              },
+            },
+            outro: 'Thank you for your understanding.',
+          },
+        };
+
+        mailOptions.subject = 'Account Blocked';
+        mailOptions.html = mailGenerator.generate(email);
+        break;
+
+      case 'User_Account_unblocked':
+        email = {
+          body: {
+            name: data.name,
+            intro: 'Your account has been unblocked.',
+            action: {
+              instructions: 'You can now access your account again.',
+              button: {
+                color: '#22BC66',
+                text: 'Access Account',
+                link: 'https://e-commerce-mavericks.com/login',
+              },
+            },
+            outro: 'If you did not request this action, please contact support immediately.',
+          },
+        };
+
+        mailOptions.subject = 'Account Blocked';
+        mailOptions.html = mailGenerator.generate(email);
+        break;
+
       case 'user_account_verification':
         email = {
           body: {
@@ -106,5 +148,3 @@ export const sendEmail = async (type: string, data: IData) => {
     if (error instanceof Error) logger.error(error.message);
   }
 };
-
-sendEmail('user_account_verification', { name: 'Patrick hag', email: 'patrickhag09@gmail.com' });

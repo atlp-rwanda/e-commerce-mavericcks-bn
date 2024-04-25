@@ -1,6 +1,11 @@
 import { Model, Optional, DataTypes, UUIDV4 } from 'sequelize';
 import sequelize from './index';
 
+enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+}
+
 interface UserAttributes {
   id: string;
   firstName: string;
@@ -12,6 +17,7 @@ interface UserAttributes {
   googleId?: string;
   photoUrl?: string;
   verified: boolean;
+  status?: UserStatus;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -29,6 +35,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public googleId?: string | undefined;
   public photoUrl?: string | undefined;
   public verified!: boolean;
+  public status!: UserStatus;
   public readonly createdAt!: Date | undefined;
   public readonly updatedAt!: Date | undefined;
 }
@@ -118,6 +125,11 @@ User.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    status: {
+      type: DataTypes.ENUM(UserStatus.ACTIVE, UserStatus.INACTIVE),
+      allowNull: false,
+      defaultValue: UserStatus.ACTIVE,
     },
   },
   { sequelize: sequelize, timestamps: true }

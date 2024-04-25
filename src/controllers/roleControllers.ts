@@ -9,7 +9,10 @@ const createRole = async (req: Request, res: Response): Promise<void> => {
     res.status(201).json({ ok: true, data: createdRole });
   } catch (error) {
     logger.error(error);
-    res.status(400).json({ ok: false, data: error });
+    res.status(400).json({
+      ok: false,
+      message: 'Role could not be created successfully',
+    });
     return;
   }
 };

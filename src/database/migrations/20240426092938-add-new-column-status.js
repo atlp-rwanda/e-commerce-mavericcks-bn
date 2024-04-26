@@ -60,6 +60,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
       },
+      status: {
+        allowNull: false,
+        type: Sequelize.DataTypes.ENUM('active', 'inactive'),
+        defaultValue: 'active',
+      },
     });
   },
   async down(queryInterface, Sequelize) {

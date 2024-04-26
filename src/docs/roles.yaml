@@ -1,0 +1,85 @@
+tags: 
+  - name: Roles
+    description: The role API test
+paths:
+  /api/role:
+    get:
+      summary: Get a list of all roles
+      tags:
+        - Roles
+      description: This tests the get request of roles
+      responses:
+        200:
+          description: Role successfully found
+        500:
+           description: Role can't be found
+
+    post:
+      summary: Add the role
+      tags:
+        - Roles
+      description: This add a new role to the role list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                displayName:
+                  type: string
+      responses:
+        201:
+          description: Role created successfully
+        400:
+          description: Role could not be successfully created
+
+  /api/role/{id}:
+    get:
+      summary: Get a single role
+      tags:
+        - Roles
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        404: 
+          description: Role could not be found
+        200:
+          description: Role successfully found
+    delete:
+      summary: Find a role and delete it by id
+      tags:
+        - Roles
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        404: 
+          description: Role could not be found
+        200:
+          description: Role successfully deleted
+        500:
+         description: Role can't be deleted successfully
+    patch:
+      summary: Find a role  by id and update it
+      tags:
+        - Roles
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        404: 
+          description: Role could not be found
+        200:
+          description: Role successfully updated
+        500:
+         description: Role can't be updated successfully

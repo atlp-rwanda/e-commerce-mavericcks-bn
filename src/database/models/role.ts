@@ -1,12 +1,12 @@
-import { Model, Optional, DataTypes, UUIDV4, Sequelize } from 'sequelize';
+import { Model, Optional, DataTypes, UUIDV4 } from 'sequelize';
 import sequelize from './index';
-import User from './user';
 
-interface RoleAttributes {
+export interface RoleAttributes {
   id: string;
   name: string;
   displayName?: string;
 }
+
 export interface RoleCreationAttributes extends Optional<RoleAttributes, 'id'> {}
 
 class Role extends Model<RoleAttributes, RoleCreationAttributes> implements RoleAttributes {
@@ -16,6 +16,7 @@ class Role extends Model<RoleAttributes, RoleCreationAttributes> implements Role
   public readonly createdAt: Date | undefined;
   public readonly updatedAt: Date | undefined;
 }
+
 Role.init(
   {
     id: {
@@ -37,7 +38,5 @@ Role.init(
     timestamps: true,
   }
 );
-User.belongsToMany(Role, { through: 'users_roles' });
-Role.belongsToMany(User, { through: 'users_roles' });
 
 export default Role;

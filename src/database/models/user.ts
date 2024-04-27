@@ -1,12 +1,16 @@
+// User Model
 import { Model, Optional, DataTypes, UUIDV4 } from 'sequelize';
 import sequelize from './index';
+import Role from './role';
+import getDefaultRole from '../../helpers/defaultRoleGenerator';
+import logger from '../../logs/config';
 
 enum UserStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
 }
 
-interface UserAttributes {
+export interface UserAttributes {
   id: string;
   firstName: string;
   lastName: string;
@@ -20,6 +24,7 @@ interface UserAttributes {
   status?: UserStatus;
   createdAt?: Date;
   updatedAt?: Date;
+  RoleId?: string;
 }
 
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -36,6 +41,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public photoUrl?: string | undefined;
   public verified!: boolean;
   public status!: UserStatus;
+  public RoleId!: string | undefined;
   public readonly createdAt!: Date | undefined;
   public readonly updatedAt!: Date | undefined;
 }
@@ -59,12 +65,6 @@ User.init(
     },
     lastName: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'First name is not empty.',
-        },
-      },
     },
     email: {
       type: DataTypes.STRING,
@@ -80,38 +80,19 @@ User.init(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Password must not be empty.',
-        },
-      },
     },
     gender: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         isIn: {
-          args: [['Male', 'Female']],
+          args: [['male', 'female', 'not specified']],
           msg: "Gender must be either 'male' or 'female'",
         },
       },
     },
     phoneNumber: {
       type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        notEmpty: {
-          msg: 'Phone number cannot be empty.',
-        },
-        isNumeric: {
-          msg: 'Phone number must contain only digits.',
-        },
-        len: {
-          args: [5, 15],
-          msg: 'Phone number must be between 5 and 15 digits long.',
-        },
-      },
     },
     photoUrl: {
       type: DataTypes.STRING,
@@ -131,8 +112,24 @@ User.init(
       allowNull: false,
       defaultValue: UserStatus.ACTIVE,
     },
+    RoleId: {
+      type: DataTypes.UUID,
+      defaultValue: UUIDV4,
+    },
   },
   { sequelize: sequelize, timestamps: true }
 );
+
+User.beforeCreate(async (user: User) => {
+  try {
+    const defaultRole = await getDefaultRole();
+    user.RoleId = defaultRole;
+  } catch (error) {
+    logger.error('Error setting default role:', error);
+    throw error;
+  }
+});
+
+User.belongsTo(Role);
 
 export default User;

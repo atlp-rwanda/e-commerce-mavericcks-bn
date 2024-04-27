@@ -1,16 +1,13 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
   title: Mavericks Back-End API
   description: backend API documentation for Mavericks e-commerce
   version: 1.0
 
-paths:
   /:
     get:
-      summary: returns entry page.
-      description: get api for the first page.
+      summary: Returns entry page
+      description: Get API for the first page
       responses:
         200:
-          description: Successful Response
-
-  
+          description: Successful response

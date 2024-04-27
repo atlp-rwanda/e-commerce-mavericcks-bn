@@ -39,4 +39,3 @@ dist
 yarn.lock
 .husky
 package-lock.json
-seeders

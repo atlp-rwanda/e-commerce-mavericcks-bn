@@ -1,5 +1,4 @@
 'use strict';
-
 const sequelize = require('sequelize');
 
 /** @type {import('sequelize-cli').Migration} */
@@ -19,7 +18,6 @@ module.exports = {
       },
       lastName: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       email: {
         type: Sequelize.STRING,
@@ -28,7 +26,6 @@ module.exports = {
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: Sequelize.STRING,
       },
       gender: {
         type: Sequelize.STRING,
@@ -36,7 +33,6 @@ module.exports = {
       },
       phoneNumber: {
         type: Sequelize.STRING,
-        allowNull: false,
         unique: true,
       },
       googleId: {
@@ -64,6 +60,16 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DataTypes.ENUM('active', 'inactive'),
         defaultValue: 'active',
+      },
+      RoleId: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'Roles',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
     });
   },

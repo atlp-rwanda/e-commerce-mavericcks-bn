@@ -1,6 +1,9 @@
 on:
     push:
       branches: [develop]
+    pull_request:
+      types: [opened, synchronize, reopened, closed]
+      branches: [develop]
   
 jobs:
     test:

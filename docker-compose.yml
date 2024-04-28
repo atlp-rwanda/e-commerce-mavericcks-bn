@@ -1,0 +1,29 @@
+version: '3.9'
+services:
+  backend:
+    container_name: backend
+    image: mavericks-backend:v1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - DATABASE_URL=postgresql://$DEV_DB_USER:$DEV_DB_PASSWORD@db:5432/$DEV_DB_NAME
+    depends_on:
+      - db
+  db:
+    container_name: db
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=$DEV_DB_USER
+      - POSTGRES_PASSWORD=$DEV_DB_PASSWORD
+      - POSTGRES_DB=$DEV_DB_NAME
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:

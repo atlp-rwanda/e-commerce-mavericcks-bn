@@ -149,65 +149,64 @@ If setting up Swagger for the first time, follow these steps:
 
 **Note:** YAML strictly follows indentations, so ensure you follow them.
 
-# Sequelize  Usage Guide
+# Sequelize Usage Guide
 
 ## Introduction
+
 This documentation provides guidance on setting up and using Sequelize in the project. Sequelize is a promise-based Node.js ORM for PostgreSQL, MySQL, SQLite, and MSSQL databases.
 
 ## Setup
-1. *Clone the Repository:* Clone the project repository to your local machine.
-    bash
-    git clone <repository-url>
-    
-2. *Install Dependencies:* Install the project dependencies using npm.
-    bash
-    npm install
-    
-3. *Run Migrations:* Execute existing migrations to create database tables.
-    bash
-    npm run migrate
-    
+
+1. _Clone the Repository:_ Clone the project repository to your local machine.
+   bash
+   git clone <repository-url>
+2. _Install Dependencies:_ Install the project dependencies using npm.
+   bash
+   npm install
+3. _Run Migrations:_ Execute existing migrations to create database tables.
+   bash
+   npm run migrate
 
 ## Usage
+
 ### Running Migrations
-- *Create Tables:* To create database tables based on existing migrations.
-    bash
-    npm run migrate
-    
-- *Undo Changes:* If you need to rollback changes made by migrations.
-    bash
-    npm run migrate:undo
-    
+
+- _Create Tables:_ To create database tables based on existing migrations.
+  bash
+  npm run migrate
+- _Undo Changes:_ If you need to rollback changes made by migrations.
+  bash
+  npm run migrate:undo
 
 ### Seeding Data
-- *Seed Database:* Add initial data to the database.
-    bash
-    npm run seed
-    
-- *Undo Seeding:* Remove seeded data from the database.
-    bash
-    npm run seed:undo
-    
+
+- _Seed Database:_ Add initial data to the database.
+  bash
+  npm run seed
+- _Undo Seeding:_ Remove seeded data from the database.
+  bash
+  npm run seed:undo
 
 ### Creating Models
-- *Generate Model:* Create a new model using the Sequelize CLI.
-    bash
-    npx sequelize-cli model:generate --name <ModelName> --attributes <attr1>:<type>,<attr2>:<type>,...
-    
+
+- _Generate Model:_ Create a new model using the Sequelize CLI.
+  bash
+  npx sequelize-cli model:generate --name <ModelName> --attributes <attr1>:<type>,<attr2>:<type>,...
 
 ### Generating Migrations
-- *Generate Migration:* Generate a new migration file for making changes to the database schema.
-    bash
-    npx sequelize-cli migration:generate --name <MigrationName>
-    
+
+- _Generate Migration:_ Generate a new migration file for making changes to the database schema.
+  bash
+  npx sequelize-cli migration:generate --name <MigrationName>
 
 ### Executing Migrations
-- *Run Migrations:* Execute the generated migration to apply changes to the database.
-    bash
-    npm run migrate
-    
+
+- _Run Migrations:_ Execute the generated migration to apply changes to the database.
+  bash
+  npm run migrate
 
 ## Conclusion
+
 Sequelize simplifies database interactions in the project by providing an ORM layer. Follow the steps outlined above to set up Sequelize and manage database schema changes effectively. For more information, refer to the Sequelize documentation.
 
 ## Useful Links
@@ -215,4 +214,3 @@ Sequelize simplifies database interactions in the project by providing an ORM la
 1. [Pivotal Tracker's Official Documentation](https://www.pivotaltracker.com/help/articles/github_integration/#attaching-branches-to-a-story-automatically)
 2. [freeCodeCamp Article on Naming Commits](https://www.freecodecamp.org/news/writing-good-commit-messages-a-practical-guide/)
 3. [Medium Article on Naming Branches](https://medium.com/@abhay.pixolo/naming-conventions-for-git-chores-a-cheatsheet)
-

@@ -1,0 +1,164 @@
+tags: 
+  - name: User
+    description: The role API test
+paths:
+  /api/users/signup:
+    post:
+      summary: "Create a new user"
+      tags:
+        - User
+      description: This create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                gender:
+                  type: string
+                phoneNumber:
+                  type: string
+      responses:
+        201:
+          description: User Created Successfully, please verify through email
+        500:
+          description: Internal Server Error
+        400:
+          description: Email is already used, Login to continuue
+  /api/users/{page}:
+    get:
+      summary: Get all users
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: page
+          required: false
+          type: string
+      responses:
+        200:
+          description: Successfull get all users
+        500:
+          description: Internal Server Error
+  /api/users/edit/{id}:
+    patch:
+      summary: Edit a user data
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                gender:
+                  type: string
+                phoneNumber:
+                  type: string
+                profileImage:
+                  type: file
+      responses:
+        201:
+          description: updated successfully
+        400:
+          description: Profile Image required.
+        403:
+          description: It does not possible to update email and password here
+        500:
+          description: Internal Server Error
+
+
+  /api/users/{id}:
+    delete:
+      summary: Delete a user
+      tags:
+        - User
+      description: Delete a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        200:
+          description: User deleted successfully
+        404:
+          description: User with this ID does not exist
+        500:
+          description: Internal Server Error
+
+  /api/users/role{id}:
+    put:
+      summary: Change a user's role
+      tags:
+        - User
+      description: Change a user role
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        200:
+          description: User deleted successfully
+        404:
+          description: User with this ID does not exist
+        500:
+          description: Internal Server Error
+
+  /api/users/user/{id}:
+    get:
+      summary: Get a single user
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successfully Get User"
+        404:
+          description: "User with this ID does not exits"
+        500:
+          description: "Internal Server Error"
+
+  /api/users/{token}/verify-email:
+    get:
+      summary: Endpoint for verify email link sent to your inbox
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: token
+          required: true
+          type: string
+      responses:
+        201:
+          description: "Account verified, Login to continue."
+        400:
+          description: "Verification failed. Try again later"
+        403:
+          description: "Verification link has expired. Please request a new one."
+        500:
+          description: "Internal Server Error"

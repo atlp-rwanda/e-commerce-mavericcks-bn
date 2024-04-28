@@ -2,7 +2,7 @@ tags:
   - name: Roles
     description: The role API test
 paths:
-  /api/role:
+  /api/roles:
     get:
       summary: Get a list of all roles
       tags:
@@ -36,7 +36,7 @@ paths:
         400:
           description: Role could not be successfully created
 
-  /api/role/{id}:
+  /api/roles/{id}:
     get:
       summary: Get a single role
       tags:

@@ -21,6 +21,16 @@ const validateEmail = (email: string): boolean => {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailPattern.test(email);
 };
+// Function to validate gender (male or female)
+export const validateGender = (gender: string) => {
+  return gender === 'male' || gender === 'female';
+};
+// Function to validate password format (alphanumeric with special characters)
+export const validatePassword = (password: string) => {
+  // For example, ensuring it contains at least one letter, one number, and one special character
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return passwordRegex.test(password);
+};
 
 // Function to send 500 Internal Server Error responses
 function sendInternalErrorResponse(res: Response, err: unknown): void {

@@ -1,0 +1,87 @@
+openapi: 3.0.0
+info:
+  title: User Profiles API
+  description: API for managing user profiles
+  version: 1.0.0
+
+paths:
+  /api/profiles/users/{userId}:
+    get:
+      summary: Get a user profile by ID
+      description: Retrieve a user profile by its ID
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: ID of the user profile to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  email:
+                    type: string
+                  phoneNumber:
+                    type: string
+                  photoUrl:
+                    type: string
+                  gender:
+                    type: string
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+    patch:
+      summary: Update a user profile
+      description: Update an existing user profile
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: ID of the user profile to update
+          schema:
+            type: string
+        - in: body
+          name: body
+          required: true
+          description: New data for the user profile
+          schema:
+            type: object
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+              phoneNumber:
+                type: string
+              photoUrl:
+                type: string
+              gender:
+                type: string
+      responses:
+        '200':
+          description: User profile updated successfully
+        '400':
+          description: Required fields are missing
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error

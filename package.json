@@ -7,7 +7,7 @@
     "build": "tsc && npm run copy-js",
     "copy-js": "node src/helpers/copy-js.js",
     "dev": "cross-env NODE_ENV=development nodemon src/server.ts",
-    "start": "cross-env NODE_ENV=production node src/dist/server.js",
+    "start": "cross-env NODE_ENV=production node dist/src/server.js",
     "test": "cross-env NODE_ENV=test jest --coverage",
     "lint": "eslint --ignore-path .eslintignore \"**/*.{js,ts}\"",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",

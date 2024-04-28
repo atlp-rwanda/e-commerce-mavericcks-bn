@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const sourceDir = 'src/database';
-const destDir = 'src/dist/database'; // Change the destination directory
+const destDir = 'dist/src/database'; // Change the destination directory
 
 // Function to recursively find JavaScript files in a directory
 function findJsFiles(dir) {

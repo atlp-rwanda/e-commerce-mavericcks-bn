@@ -115,6 +115,10 @@ User.init(
     RoleId: {
       type: DataTypes.UUID,
       defaultValue: UUIDV4,
+      references: {
+        model: Role,
+        key: 'id',
+      },
     },
   },
   { sequelize: sequelize, timestamps: true }

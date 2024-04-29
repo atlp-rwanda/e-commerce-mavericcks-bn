@@ -56,6 +56,20 @@ const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Check if user is inactive
+    if (user.status === 'inactive') {
+      logger.error('Your account has been blocked. Please contact support.');
+      res.status(403).json({ ok: false, message: 'Your account has been blocked. Please contact support.' });
+      return;
+    }
+
+    // Check if user is verified
+    if (!user.verified) {
+      logger.error('Your account is not verified. Please verify your account.');
+      res.status(403).json({ ok: false, message: 'Your account is not verified. Please verify your account.' });
+      return;
+    }
+
     // Verify password
     const passwordValid = await bcrypt.compare(password, user.password);
     if (!passwordValid) {

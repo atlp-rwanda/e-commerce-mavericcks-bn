@@ -14,7 +14,7 @@ const options = {
     },
     servers: [
       {
-        url: `${process.env.URL_HOST}:${process.env.PORT}`,
+        url: `${process.env.URL_HOST}`,
       },
     ],
   },

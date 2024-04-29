@@ -7,6 +7,7 @@ import {
   editUserRole,
   getAllUser,
   getOneUser,
+  resendVerifyLink,
   signupUser,
   userVerify,
 } from '../controllers/userController';
@@ -22,6 +23,7 @@ router.delete('/:id', isAuthenticated, checkUserRoles('admin'), deleteUser);
 router.patch('/edit/:id', isAuthenticated, multerUpload.single('profileImage'), editUser); // remove id param
 router.put('/role/:userId', isAuthenticated, checkUserRoles('admin'), editUserRole);
 router.get('/:token/verify-email', userVerify);
+router.post('/resend-verify', resendVerifyLink);
 router.put('/deactivate/:userId', isAuthenticated, deactivateUserAccount);
 router.put('/activate/:userId', isAuthenticated, checkUserRoles('admin'), activateUserAccount);
 

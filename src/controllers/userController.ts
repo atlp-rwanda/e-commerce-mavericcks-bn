@@ -59,7 +59,7 @@ export const signupUser = async (req: Request, res: Response) => {
     if (createdUser) {
       token = await userToken(createdUser.id as string, createdUser.email as string);
     }
-    const link: string = `${process.env.URL_HOST}:${process.env.PORT}/api/users/${token}/verify-email`;
+    const link: string = `${process.env.URL_HOST}/api/users/${token}/verify-email`;
 
     sendEmail('account_verify', {
       name: `${createdUser.firstName} ${createdUser.lastName}`,
@@ -233,5 +233,40 @@ export const userVerify = async (req: Request, res: Response) => {
       sendInternalErrorResponse(res, error);
       return;
     }
+  }
+};
+// Function for resend verification link
+export const resendVerifyLink = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!validateEmail(email)) {
+      return res.status(400).json({ ok: false, error: 'Invalid email format' });
+    }
+    if (validateFields(req, ['email']).length !== 0) {
+      res.status(400).json({ ok: false, error: 'Email is required' });
+      return;
+    }
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ ok: false, error: 'User with this email does not exit, Sign up to continue' });
+    }
+    const notVerifiedUser = await User.findOne({ where: { email, verified: false } });
+    if (!notVerifiedUser) {
+      return res.status(202).json({ ok: false, error: `${email} is already verified. Login to continue` });
+    }
+
+    const token = await userToken(user.dataValues.id as string, user.dataValues.email as string);
+    const verificationLink: string = `${process.env.URL_HOST}/api/users/${token}/verify-email`;
+
+    sendEmail('account_verify', {
+      name: `${user.dataValues.firstName} ${user.dataValues.lastName}`,
+      email,
+      link: verificationLink,
+    });
+    res.status(201).json({ ok: true, message: 'Check your email to verify.' });
+  } catch (error) {
+    logger.error('Resend-verify: ', error);
+    sendInternalErrorResponse(res, error);
   }
 };

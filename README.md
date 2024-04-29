@@ -86,7 +86,7 @@ Being able to access the e-commerce-mavericcks-bn backe-end:
 
 2.  Installing depedencies:
 
-`npm install `
+`npm install`
 
 3.  Copy the environment configuration:
 
@@ -157,57 +157,66 @@ This documentation provides guidance on setting up and using Sequelize in the pr
 
 ## Setup
 
-1. _Clone the Repository:_ Clone the project repository to your local machine.
-   bash
-   git clone <repository-url>
-2. _Install Dependencies:_ Install the project dependencies using npm.
-   bash
-   npm install
-3. _Run Migrations:_ Execute existing migrations to create database tables.
-   bash
+1. _Run Existing Migrations:_ Execute existing migrations to create database tables.
+
+    ```
    npm run migrate
+   ```
 
 ## Usage
 
 ### Running Migrations
 
 - _Create Tables:_ To create database tables based on existing migrations.
-  bash
-  npm run migrate
-- _Undo Changes:_ If you need to rollback changes made by migrations.
-  bash
-  npm run migrate:undo
 
+  ```
+  npm run migrate
+  ```
+
+- _Undo Changes:_ If you need to rollback changes made by migrations.
+
+    ```
+    npm run migrate:undo
+    ```
 ### Seeding Data
 
 - _Seed Database:_ Add initial data to the database.
-  bash
+  ```
   npm run seed
+  ```
+ 
 - _Undo Seeding:_ Remove seeded data from the database.
-  bash
-  npm run seed:undo
+  
+    ```
+    npm run seed:undo
+    ```
 
 ### Creating Models
 
 - _Generate Model:_ Create a new model using the Sequelize CLI.
-  bash
+ 
+  ```
   npx sequelize-cli model:generate --name <ModelName> --attributes <attr1>:<type>,<attr2>:<type>,...
+  ```
 
 ### Generating Migrations
 
 - _Generate Migration:_ Generate a new migration file for making changes to the database schema.
-  bash
-  npx sequelize-cli migration:generate --name <MigrationName>
+     ```
+      npx sequelize-cli migration:generate --name <MigrationName>
+     ```
 
 ### Executing Migrations
 
 - _Run Migrations:_ Execute the generated migration to apply changes to the database.
-  bash
+  ```
   npm run migrate
+  ```
 
 ## Conclusion
 
 Sequelize simplifies database interactions in the project by providing an ORM layer. Follow the steps outlined above to set up Sequelize and manage database schema changes effectively. For more information, refer to the Sequelize documentation.
+
 
 ## Useful Links
 

@@ -1,4 +1,18 @@
 [![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg)](https://houndci.com)
+[![.github/workflows/main.yaml](https://github.com/atlp-rwanda/e-commerce-mavericcks-bn/actions/workflows/main.yaml/badge.svg)](https://github.com/atlp-rwanda/e-commerce-mavericcks-bn/actions/workflows/main.yaml)
+[![Coverage Status](https://coveralls.io/repos/github/atlp-rwanda/e-commerce-mavericcks-bn/badge.svg?branch=develop)](https://coveralls.io/github/atlp-rwanda/e-commerce-mavericcks-bn?branch=develop) [![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/your-username/your-repo-name/releases/tag/v1.0.0) ![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability-percentage/atlp-rwanda/e-commerce-mavericcks-bn) [![Test Coverage](https://api.codeclimate.com/v1/badges/c73dab3934e9b2672420/test_coverage)](https://codeclimate.com/github/atlp-rwanda/e-commerce-mavericcks-bn/test_coverage)
+
+
+
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB) ![Static Badge](https://img.shields.io/badge/Sequelize-blue?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Static Badge](https://img.shields.io/badge/Docker-%23095CB0?style=for-the-badge&logo=docker&logoColor=white) ![Static Badge](https://img.shields.io/badge/Typescript-%234A5561?style=for-the-badge&logo=typescript&logoColor=white) ![Static Badge](https://img.shields.io/badge/Passport-%2372A98A?style=for-the-badge&logo=passport&logoSize=amg) <a href="https://e-commerce-mavericcks-bn-staging-istf.onrender.com/api/docs/">![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)</a>
+
+
+
+
+
+
+
+
 
 # e-commerce-mavericcks-bn
 

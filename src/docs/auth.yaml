@@ -53,6 +53,54 @@ paths:
         500:
           description: Internal server error
 
-tags:
-  - name: Login
-    description: Login a user
+     
+  /auth/logout:
+    post:
+      summary: Logout User
+      tags:
+      - Logout
+      description: Invalidates the authentication token of a logged-in user, effectively logging them out.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer token obtained during login
+          required: true
+          type: string
+      responses:
+        '200':
+          description: User logged out successfully
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: User logged out successfully
+        '400':
+          description: Bad request, token not provided
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Token not provided
+        '401':
+          description: Unauthorized, invalid or expired token
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Invalid or expired token

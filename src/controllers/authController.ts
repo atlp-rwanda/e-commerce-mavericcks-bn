@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import User, { UserAttributes } from '../database/models/user';
 import { sendInternalErrorResponse, validateFields } from '../validations';
 import logger from '../logs/config';
+import { extractTokenMiddleware } from '../helpers/tokenExtractor';
 
 const authenticateViaGoogle = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate('google', (err: unknown, user: UserAttributes | null) => {
@@ -17,14 +18,7 @@ const authenticateViaGoogle = (req: Request, res: Response, next: NextFunction) 
       return;
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, {
-      expiresIn: process.env.JWT_EXPIRATION as string,
-    });
-
-    res.status(200).json({
-      ok: true,
-      token: token,
-    });
+    generateAndSendToken(user.id, res, req); // Pass req here
   })(req, res, next);
 };
 
@@ -78,20 +72,36 @@ const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Authenticate user with jwt
-    const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, {
-      expiresIn: process.env.JWT_EXPIRATION as string,
-    });
-
-    res.status(200).json({
-      ok: true,
-      token: token,
-    });
+    generateAndSendToken(user.id, res, req);
   } catch (err: any) {
     const message = (err as Error).message;
     logger.error(message);
     sendInternalErrorResponse(res, err);
   }
+};
+
+const generateAndSendToken = (userId: string, res: Response, req: Request) => {
+  extractTokenMiddleware(req, res, () => {
+    // Pass the req object here
+    const token = (res as any).token;
+    jwt.verify(token, process.env.JWT_SECRET as string, (err: any) => {
+      if (err) {
+        res.status(401).json({
+          ok: false,
+          message: 'Invalid token',
+        });
+        return;
+      }
+      const generatedToken = jwt.sign({ id: userId }, process.env.SECRET_KEY as string, {
+        expiresIn: process.env.JWT_EXPIRATION as string,
+      });
+
+      res.status(200).json({
+        ok: true,
+        token: generatedToken,
+      });
+    });
+  });
 };
 
 export { login, authenticateViaGoogle };

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
@@ -93,5 +95,61 @@ const login = async (req: Request, res: Response): Promise<void> => {
     sendInternalErrorResponse(res, err);
   }
 };
+const updatePassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      res.status(401).json({
+        ok: false,
+        message: 'Unauthorized',
+      });
+      return;
+    }
+    const decode = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+    if (!decode) {
+      res.status(400).json({
+        ok: false,
+        message: 'Invalid token',
+      });
+    }
+    const saltRound = await bcrypt.genSalt(10);
+    const user = await User.findOne({
+      where: {
+        id: decode.id,
+      },
+    });
+    if (!user) {
+      res.status(400).json({
+        ok: false,
+        message: 'User not found',
+      });
+      return;
+    }
+    const match = await bcrypt.compare(oldPassword, user.password);
+    if (!match) {
+      res.status(400).json({
+        ok: false,
+        message: 'The old password is incorrect!',
+      });
+    }
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRound);
+    await User.update(
+      { password: hashedNewPassword },
+      {
+        where: {
+          id: decode.id,
+        },
+      }
+    );
+    res.status(200).json({
+      ok: true,
+      message: 'Successfully updated user password!',
+    });
+  } catch (error) {
+    logger.error('Error updating user:', error);
+    sendInternalErrorResponse(res, error);
+  }
+};
 
-export { login, authenticateViaGoogle };
+export { login, updatePassword, authenticateViaGoogle };

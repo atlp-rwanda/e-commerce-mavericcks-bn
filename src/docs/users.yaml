@@ -162,3 +162,27 @@ paths:
           description: "Verification link has expired. Please request a new one."
         500:
           description: "Internal Server Error"
+
+  /api/users/resend-verify:
+    post:
+      summary: Endpoint for resend link to verify your email
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        201:
+          description: Check your email to verify.
+        202:
+          description: User is already verified. Login to continue
+        400:
+          description: Email is already used, Login to continuue
+        500:
+          description: "Internal Server Error"

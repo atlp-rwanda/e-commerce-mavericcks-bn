@@ -69,3 +69,6 @@ export const checkUserRoles = (requiredRole: string) => {
     next();
   };
 };
+export const verifySeller = (user: any, req: Request, res: Response) => {
+  console.log(user);
+};

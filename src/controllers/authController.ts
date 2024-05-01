@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import User, { UserAttributes } from '../database/models/user';
 import { sendInternalErrorResponse, validateFields } from '../validations';
 import logger from '../logs/config';
+import { verifySeller } from '../middlewares/authMiddlewares';
 
 const authenticateViaGoogle = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate('google', (err: unknown, user: UserAttributes | null) => {
@@ -78,15 +79,17 @@ const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Authenticate user with jwt
-    const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, {
-      expiresIn: process.env.JWT_EXPIRATION as string,
-    });
+    verifySeller(user, req, res);
 
-    res.status(200).json({
-      ok: true,
-      token: token,
-    });
+    // Authenticate user with jwt
+    // const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, {
+    //   expiresIn: process.env.JWT_EXPIRATION as string,
+    // });
+
+    // res.status(200).json({
+    //   ok: true,
+    //   token: token,
+    // });
   } catch (err: any) {
     const message = (err as Error).message;
     logger.error(message);

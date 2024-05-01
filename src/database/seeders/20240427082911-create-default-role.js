@@ -13,6 +13,13 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+      {
+        id: '6ef1e121-304a-4f08-ad4e-cd07f9578b52',
+        name: 'admin',
+        displayName: 'Admin Role',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ]);
   },
 

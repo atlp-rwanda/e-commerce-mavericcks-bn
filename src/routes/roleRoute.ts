@@ -5,9 +5,9 @@ import { isAuthenticated, checkUserRoles } from '../middlewares/authMiddlewares'
 const router = Router();
 
 router.get('/', isAuthenticated, getAllRoles);
-router.get('/:id', getSingleRole);
+router.get('/:id', isAuthenticated, getSingleRole);
 router.post('/', isAuthenticated, checkUserRoles('admin'), createRole);
-router.patch('/:id', updateRole);
-router.delete('/:id', deleteRole);
+router.patch('/:id', isAuthenticated, checkUserRoles('admin'), updateRole);
+router.delete('/:id', isAuthenticated, checkUserRoles('admin'), deleteRole);
 
 export default router;

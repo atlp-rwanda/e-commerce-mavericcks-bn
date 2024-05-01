@@ -1,0 +1,70 @@
+Profiles:
+  name: User Profiles API
+  description: API for managing user profiles
+
+paths:
+  /api/profiles/users:
+    get:
+      summary: Get all user profiles
+      description: Retrieve a list of all user profiles
+      tags:
+        - Profiles
+      responses:
+        '200':
+          description: A list of user profiles
+        '500':
+          description: Internal server error
+
+  /api/profiles/users/{userId}:
+    get:
+      summary: Get a user profile by ID
+      description: Retrieve a user profile by its ID
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: ID of the user profile to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The user profile
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+    put:
+      summary: Update a user profile
+      description: Update an existing user profile
+      tags:
+        - Profiles
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: ID of the user profile to update
+          schema:
+            type: string
+        - in: body
+          name: body
+          required: true
+          description: New data for the user profile
+          schema:
+            type: object
+            properties:
+              firstName:
+                type: string
+              lastName:
+                type: string
+              email:
+                type: string
+      responses:
+        '200':
+          description: User profile updated successfully
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error

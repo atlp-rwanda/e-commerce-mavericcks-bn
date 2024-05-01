@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 import User, { UserAttributes } from '../database/models/user';
 import { sendInternalErrorResponse, validateFields } from '../validations';
 import logger from '../logs/config';
+import { passwordCompare } from '../helpers/encrypt';
 
 const authenticateViaGoogle = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate('google', (err: unknown, user: UserAttributes | null) => {
@@ -71,7 +71,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Verify password
-    const passwordValid = await bcrypt.compare(password, user.password);
+    const passwordValid = await passwordCompare(password, user.password);
     if (!passwordValid) {
       logger.error('Invalid credentials');
       res.status(404).json({ ok: false, message: 'Invalid credentials' });

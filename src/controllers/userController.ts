@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
 import User from '../database/models/user';
 import logger from '../logs/config';
 import { userToken } from '../helpers/token.generator';
@@ -8,6 +7,7 @@ import * as jwt from 'jsonwebtoken';
 import Role from '../database/models/role';
 import { sendEmail } from '../helpers/send-email';
 import { sendInternalErrorResponse, validateEmail, validateFields, validatePassword } from '../validations';
+import { passwordEncrypt } from '../helpers/encrypt';
 
 // Function for user signup
 export const signupUser = async (req: Request, res: Response) => {
@@ -41,8 +41,7 @@ export const signupUser = async (req: Request, res: Response) => {
       return res.status(400).json({ ok: false, error: 'Email is already used, Login to continuue' });
     }
 
-    const saltRound = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, saltRound);
+    const hashPassword = await passwordEncrypt(password);
 
     const newUser = await User.create({
       firstName,

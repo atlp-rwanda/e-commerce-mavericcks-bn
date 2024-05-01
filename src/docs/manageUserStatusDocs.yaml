@@ -3,6 +3,8 @@ paths:
     put:
       summary: Deactivate a user account
       description: Deactivates a user account and sends an email notification.
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: userId
@@ -10,7 +12,7 @@ paths:
           description: The ID of the user to deactivate
           schema:
             type: string
-          example: "123456789"
+          example: '123456789'
       responses:
         '200':
           description: Success response
@@ -26,8 +28,8 @@ paths:
                     type: string
                     description: The status of the operation ('OK' for success)
               example:
-                message: "User deactivated successfully"
-                status: "OK"
+                message: 'User deactivated successfully'
+                status: 'OK'
         '400':
           description: Bad request
           content:
@@ -39,7 +41,7 @@ paths:
                     type: string
                     description: A message indicating the error
               example:
-                message: "Invalid request parameters"
+                message: 'Invalid request parameters'
         '500':
           description: Internal server error
           content:
@@ -51,11 +53,13 @@ paths:
                     type: string
                     description: A message indicating the error
               example:
-                message: "Internal server error occurred"
+                message: 'Internal server error occurred'
 
   /api/users/activate/{userId}:
     put:
       summary: Activate a user account
+      sercurity:
+        - bearerAuth: []
       description: Activates a user account and sends an email notification.
       parameters:
         - in: path
@@ -64,7 +68,7 @@ paths:
           description: The ID of the user to activate
           schema:
             type: string
-          example: "123456789"
+          example: '123456789'
       responses:
         '200':
           description: Success response
@@ -80,8 +84,8 @@ paths:
                     type: string
                     description: The status of the operation ('OK' for success)
               example:
-                message: "User activated successfully"
-                status: "OK"
+                message: 'User activated successfully'
+                status: 'OK'
         '400':
           description: Bad request
           content:
@@ -93,7 +97,7 @@ paths:
                     type: string
                     description: A message indicating the error
               example:
-                message: "Invalid request parameters"
+                message: 'Invalid request parameters'
         '500':
           description: Internal server error
           content:
@@ -105,4 +109,12 @@ paths:
                     type: string
                     description: A message indicating the error
               example:
-                message: "Internal server error occurred"
+                message: 'Internal server error occurred'
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,10 +1,12 @@
-tags: 
+tags:
   - name: Roles
     description: The role API test
 paths:
   /api/roles:
     get:
       summary: Get a list of all roles
+      security:
+        - bearerAuth: []
       tags:
         - Roles
       description: This tests the get request of roles
@@ -12,10 +14,12 @@ paths:
         200:
           description: Role successfully found
         500:
-           description: Role can't be found
+          description: Role can't be found
 
     post:
       summary: Add the role
+      security:
+        - bearerAuth: []
       tags:
         - Roles
       description: This add a new role to the role list
@@ -39,6 +43,8 @@ paths:
   /api/roles/{id}:
     get:
       summary: Get a single role
+      security:
+        - bearerAuth: []
       tags:
         - Roles
       parameters:
@@ -47,12 +53,14 @@ paths:
           required: true
           type: string
       responses:
-        404: 
+        404:
           description: Role could not be found
         200:
           description: Role successfully found
     delete:
       summary: Find a role and delete it by id
+      security:
+        - bearerAuth: []
       tags:
         - Roles
       parameters:
@@ -61,14 +69,16 @@ paths:
           required: true
           type: string
       responses:
-        404: 
+        404:
           description: Role could not be found
         200:
           description: Role successfully deleted
         500:
-         description: Role can't be deleted successfully
+          description: Role can't be deleted successfully
     patch:
       summary: Find a role  by id and update it
+      security:
+        - bearerAuth: []
       tags:
         - Roles
       parameters:
@@ -77,9 +87,17 @@ paths:
           required: true
           type: string
       responses:
-        404: 
+        404:
           description: Role could not be found
         200:
           description: Role successfully updated
         500:
-         description: Role can't be updated successfully
+          description: Role can't be updated successfully
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

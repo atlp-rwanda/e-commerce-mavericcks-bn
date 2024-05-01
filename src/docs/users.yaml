@@ -1,10 +1,10 @@
-tags: 
+tags:
   - name: User
     description: The role API test
 paths:
   /api/users/signup:
     post:
-      summary: "Create a new user"
+      summary: 'Create a new user'
       tags:
         - User
       description: This create a new user
@@ -37,6 +37,8 @@ paths:
   /api/users/{page}:
     get:
       summary: Get all users
+      security:
+        - bearerAuth: []
       tags:
         - User
       parameters:
@@ -52,6 +54,8 @@ paths:
   /api/users/edit/{id}:
     patch:
       summary: Edit a user data
+      security:
+        - bearerAuth: []
       tags:
         - User
       parameters:
@@ -86,10 +90,11 @@ paths:
         500:
           description: Internal Server Error
 
-
   /api/users/{id}:
     delete:
       summary: Delete a user
+      security:
+        - bearerAuth: []
       tags:
         - User
       description: Delete a user
@@ -109,6 +114,8 @@ paths:
   /api/users/role{id}:
     put:
       summary: Change a user's role
+      security:
+        - bearerAuth: []
       tags:
         - User
       description: Change a user role
@@ -128,6 +135,8 @@ paths:
   /api/users/user/{id}:
     get:
       summary: Get a single user
+      security:
+        - bearerAuth: []
       tags:
         - User
       parameters:
@@ -137,11 +146,11 @@ paths:
           type: string
       responses:
         200:
-          description: "Successfully Get User"
+          description: 'Successfully Get User'
         404:
-          description: "User with this ID does not exits"
+          description: 'User with this ID does not exits'
         500:
-          description: "Internal Server Error"
+          description: 'Internal Server Error'
 
   /api/users/{token}/verify-email:
     get:
@@ -155,13 +164,13 @@ paths:
           type: string
       responses:
         201:
-          description: "Account verified, Login to continue."
+          description: 'Account verified, Login to continue.'
         400:
-          description: "Verification failed. Try again later"
+          description: 'Verification failed. Try again later'
         403:
-          description: "Verification link has expired. Please request a new one."
+          description: 'Verification link has expired. Please request a new one.'
         500:
-          description: "Internal Server Error"
+          description: 'Internal Server Error'
 
   /api/users/resend-verify:
     post:
@@ -185,4 +194,12 @@ paths:
         400:
           description: Email is already used, Login to continuue
         500:
-          description: "Internal Server Error"
+          description: 'Internal Server Error'
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -203,6 +203,7 @@ paths:
                   message:
                     type: string
                     example: Something went wrong when creating the product
+<<<<<<< HEAD
 
 /api/products/{sizeId}/available:
   put:
@@ -308,6 +309,26 @@ paths:
       500:
         description: Internal server error
 
+=======
+  /api/notifications/{userId}:
+    get:
+      tags:
+        - Product
+      summary: Fetching all notifications for product creation
+      description: This get all notifications that are also related to certain product lifecycle change and also related to the user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          type: string
+      responses:
+        404:
+          description: Notifications were not found! Please try again
+        200:
+          description: Notifications were successfully fetched
+>>>>>>> 8a7df7b (Creating notifications)
 components:
   securitySchemes:
     bearerAuth:

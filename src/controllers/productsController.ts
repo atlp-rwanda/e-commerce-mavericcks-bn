@@ -8,6 +8,9 @@ import { Product, ProductAttributes } from '../database/models/Product';
 import { Size, SizeAttributes } from '../database/models/Size';
 import logger from '../logs/config';
 import sequelize from '../database/models';
+import Notification from '../database/models/notification';
+import User from '../database/models/user';
+import { sendEmail } from '../helpers/send-email';
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -254,3 +257,17 @@ export const deleteProductById = async (req: Request, res: Response) => {
     sendInternalErrorResponse(res, error);
   }
 };
+//HOOKS TO MANAGE NOTIFICATIONS AFTER OPERATIONS ARE MADE ON PRODUCT
+
+Product.afterCreate(async product => {
+  const notification = await Notification.create({
+    message: `Product called: ${product.name} was created successfully!`,
+    isRead: false,
+    userId: product.sellerId,
+  });
+  const user = await User.findOne({ where: { id: product.sellerId }, attributes: ['email', 'firstName', 'lastName'] });
+  if (!user) {
+    return Promise.reject(new Error("User cannot be found! So the email won't be send successfully"));
+  }
+  sendEmail('added_product_notification', { email: user.email, name: user.firstName });
+});

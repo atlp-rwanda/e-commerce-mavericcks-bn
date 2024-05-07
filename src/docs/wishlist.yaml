@@ -1,0 +1,138 @@
+tags:
+  - name: Wishlist
+    description: Buyer Wishlist
+
+paths:
+  /api/wishlist/add-wishlist/{id}:
+    post:
+      summary: Add product to wishlist
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          require: true
+          type: string
+      responses:
+        201:
+          description: Product added to wishlist successfully
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+              message:
+                type: string
+              data:
+                $ref: '#/definitions/WishlistItem'
+        400:
+          description: Product not found 
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /api/wishlist/get-wishlist:
+    get:
+      summary: Get user's wishlist
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Wishlist fetched successfully
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+              message:
+                type: string
+              wishlistItems:
+                type: array
+                items:
+                  $ref: '#/definitions/WishlistItem'
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /api/wishlist:
+    delete:
+      summary: Clear user's wishlist
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Wishlist cleared successfully
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+              message:
+                type: string
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+
+  /api/wishlist/{id}:
+    delete:
+      summary: Delete a product from wishlist
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: wishList item id
+          required: true
+          type: string
+      responses:
+        200:
+          description: Wishlist item deleted successfully
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+              message:
+                type: string
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+
+definitions:
+  WishlistItem:
+    type: object
+    properties:
+      id:
+        type: string
+      userId:
+        type: string
+      productId:
+        type: string
+      images:
+        type: array
+        items:
+          type: string
+      name:
+        type: string
+      price:
+        type: number
+
+  Error:
+    type: object
+    properties:
+      message:
+        type: string

@@ -1,12 +1,18 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from 'express';
 import userRoute from './userRoute';
 import authRoute from './authRoute';
 import roleRoute from './roleRoute';
+import { productRouter } from './productRoutes';
+import { categoryRouter } from './categoryRouter';
+import wishlistRoute from './wishlistRoute';
 
 const router = Router();
 
 router.use('/users', userRoute);
 router.use('/auth', authRoute);
 router.use('/roles', roleRoute);
-
+router.use('/products', productRouter);
+router.use('/category', categoryRouter);
+router.use('/wishlist', wishlistRoute);
 export default router;

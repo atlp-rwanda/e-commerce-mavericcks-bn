@@ -5,6 +5,7 @@ import {
   deleteUser,
   editUser,
   editUserRole,
+  enable2FA,
   getAllUser,
   getOneUser,
   resendVerifyLink,
@@ -13,6 +14,8 @@ import {
 } from '../controllers/userController';
 import multerUpload from '../helpers/multer';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
+import { isCheckedOTP } from '../middlewares/otpAuthMiddleware';
+import { verifyOTP } from '../controllers/authController';
 
 const router = Router();
 
@@ -26,5 +29,6 @@ router.get('/:token/verify-email', userVerify);
 router.post('/resend-verify', resendVerifyLink);
 router.put('/deactivate/:userId', isAuthenticated, deactivateUserAccount);
 router.put('/activate/:userId', isAuthenticated, checkUserRoles('admin'), activateUserAccount);
+router.patch('/enable2fa', isAuthenticated, checkUserRoles('seller'), enable2FA);
 
 export default router;

@@ -195,6 +195,51 @@ paths:
           description: Email is already used, Login to continuue
         500:
           description: 'Internal Server Error'
+  /api/users/enable2fa:
+    patch:
+      summary: Endpoint to enable 2 factor authentication for seller
+      security:
+        - bearerAuth: []
+      tags: 
+        - User
+      responses:
+        201:
+          description: "2FA status toggled successfully"
+        400:
+          description: "User not found"
+        404:
+          description: "UserId Not Found"
+        500:
+          description: "Internal Server Error"
+  /api/users/{token}/otp:
+    post:
+      summary: "Endpoint to verify OTP sent to you"
+      tags:
+        - User
+      parameters: 
+        - in: path
+          name: token
+          required: true
+          type: string
+      description: OTP code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  type: string
+      responses:
+        200:
+          description: "Get new to token for login"
+        404:
+          description: "No user sent token"
+        400:
+          description: "OTP Enter is wrong"
+        403:
+          description: "Token expired"
 security:
   - bearerAuth: []
 components:

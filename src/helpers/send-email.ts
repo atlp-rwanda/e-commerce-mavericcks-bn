@@ -9,6 +9,16 @@ interface IData {
   email: string;
   name: string;
   link?: string;
+  otp?: string;
+}
+interface EmailContent {
+  name: string;
+  intro: string;
+  otp: {
+    bold: boolean;
+    content: string;
+  };
+  outro: string;
 }
 
 const { EMAIL, PASSWORD } = process.env;
@@ -142,9 +152,56 @@ export const sendEmail = async (type: string, data: IData) => {
         mailOptions.subject = 'Reset password';
         mailOptions.html = mailGenerator.generate(email);
         break;
+      case 'OTP':
+        const emailContent = `
+        <html>
+          <head>
+            <style>
+              /* CSS styles */
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.3;
+                background-color: #f4f4f4;
+                padding: 20px;
+              }
+              .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #fff;
+                border-radius: 8px;
+                padding: 40px;
+                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+              }
+              .otp {
+                font-size: 24px;
+                font-weight: bold;
+                color: #007bff;
+              }
+              .footer {
+                font-size: 14px;
+                color: #666;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1 style="text-align: center; color: #007bff;">Verification Code</h1>
+              <p style="text-align: center;">Hello ${data.name},</p>
+              <p style="text-align: center;">Your verification code is:</p>
+              <p class="otp" style="text-align: center;">${data.otp}</p>
+              <p style="text-align: center;">Use this code to verify your account.</p>
+              <p style="text-align: center;">Regards,<br/>Mavericks Team</p>
+            </div>
+          </body>
+        </html>
+        `;
+
+        mailOptions.subject = 'Verification code';
+        mailOptions.html = emailContent;
+        break;
     }
     const info = await transporter.sendMail(mailOptions);
-    logger.info(info);
+    logger.info('Send Mailer', info);
   } catch (error) {
     if (error instanceof Error) logger.error(error.message);
   }

@@ -4,13 +4,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 export interface UserPayload {
   id: string;
-  email: string;
+  email?: string;
 }
 // Function to generate token
-export const userToken = async (userId: string, userEmail: string) => {
+export const userToken = async (userId: string, userEmail?: string) => {
   const payload: UserPayload = {
     id: userId,
-    email: userEmail,
+    email: userEmail ?? undefined,
   };
   const token: string = jwt.sign(payload, process.env.SECRET_KEY as string, {
     expiresIn: process.env.JWT_EXPIRATION as string,
@@ -19,6 +19,11 @@ export const userToken = async (userId: string, userEmail: string) => {
   return token;
 };
 
-// Function for token verification
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const verifyToken = (token: string, results?: any) => {
+  return jwt.verify(token, process.env.SECRET_KEY as string, results);
+};
 
-// Function for token Decode
+export const decodedToken = (token: string) => {
+  return jwt.decode(token);
+};

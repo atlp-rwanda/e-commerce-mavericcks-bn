@@ -52,6 +52,35 @@ paths:
           description: User not found or incorrect credentials
         500:
           description: Internal server error
+  /api/auth/{token}/otp:
+    post:
+      summary: "Endpoint to verify OTP sent to you"
+      tags:
+        - Login
+      parameters: 
+        - in: path
+          name: token
+          required: true
+          type: string
+      description: OTP code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  type: string
+      responses:
+        200:
+          description: "Get new to token for login"
+        404:
+          description: "No user sent token"
+        400:
+          description: "OTP Enter is wrong"
+        403:
+          description: "Token expired"
 
 tags:
   - name: Login

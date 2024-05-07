@@ -25,6 +25,7 @@ export interface UserAttributes {
   createdAt?: Date;
   updatedAt?: Date;
   RoleId?: string;
+  enable2FA?: boolean;
 }
 
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -42,6 +43,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public verified!: boolean;
   public status!: UserStatus;
   public RoleId!: string | undefined;
+  public enable2FA?: boolean | undefined;
   public readonly createdAt!: Date | undefined;
   public readonly updatedAt!: Date | undefined;
 }
@@ -119,6 +121,11 @@ User.init(
         model: Role,
         key: 'id',
       },
+    },
+    enable2FA: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   },
   { sequelize: sequelize, timestamps: true }

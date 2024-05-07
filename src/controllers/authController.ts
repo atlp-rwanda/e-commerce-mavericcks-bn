@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import User, { UserAttributes } from '../database/models/user';
 import { sendInternalErrorResponse, validateFields } from '../validations';
 import logger from '../logs/config';
 import { passwordCompare } from '../helpers/encrypt';
+import { verifyIfSeller } from '../middlewares/authMiddlewares';
+import { createOTPToken, saveOTPDB } from '../middlewares/otpAuthMiddleware';
+import { userToken } from '../helpers/token.generator';
+import { sendErrorResponse } from '../helpers/helper';
 
-const authenticateViaGoogle = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateViaGoogle = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate('google', (err: unknown, user: UserAttributes | null) => {
     if (err) {
       sendInternalErrorResponse(res, err);
@@ -29,7 +33,7 @@ const authenticateViaGoogle = (req: Request, res: Response, next: NextFunction) 
 };
 
 // login function
-const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
@@ -51,47 +55,67 @@ const login = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!user) {
-      logger.error('Invalid credentials');
-      res.status(404).json({ ok: false, message: 'Invalid credentials' });
+      sendErrorResponse(res, 'invalidCredentials');
       return;
     }
 
     // Check if user is inactive
     if (user.status === 'inactive') {
-      logger.error('Your account has been blocked. Please contact support.');
-      res.status(403).json({ ok: false, message: 'Your account has been blocked. Please contact support.' });
+      sendErrorResponse(res, 'inactiveUser');
       return;
     }
 
     // Check if user is verified
     if (!user.verified) {
-      logger.error('Your account is not verified. Please verify your account.');
-      res.status(403).json({ ok: false, message: 'Your account is not verified. Please verify your account.' });
+      sendErrorResponse(res, 'unverifiedUser');
       return;
     }
 
     // Verify password
     const passwordValid = await passwordCompare(password, user.password);
     if (!passwordValid) {
-      logger.error('Invalid credentials');
-      res.status(404).json({ ok: false, message: 'Invalid credentials' });
+      sendErrorResponse(res, 'invalidCredentials');
       return;
     }
 
-    // Authenticate user with jwt
-    const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, {
-      expiresIn: process.env.JWT_EXPIRATION as string,
-    });
-
-    res.status(200).json({
-      ok: true,
-      token: token,
-    });
+    await verifyIfSeller(user, req, res);
   } catch (err: any) {
     const message = (err as Error).message;
     logger.error(message);
     sendInternalErrorResponse(res, err);
   }
 };
+// Function to verify OTP
+export const verifyOTP = async (req: Request, res: Response) => {
+  try {
+    const data = req.user as JwtPayload;
+    const token = await userToken(data.id);
 
-export { login, authenticateViaGoogle };
+    res.status(200).json({ ok: true, token });
+  } catch (error) {
+    logger.error('VerifyOTP Internal Server Error', error);
+    sendInternalErrorResponse(res, error);
+  }
+};
+// Function to create OTP Token, Save it Postgres,
+export const sendOTP = async (req: Request, res: Response, email: string) => {
+  const userInfo = await User.findOne({ where: { email } });
+  if (userInfo) {
+    const { id, email, firstName } = userInfo.dataValues;
+
+    const token = await createOTPToken(id, email, firstName);
+
+    const otpSaved = await saveOTPDB(id, token);
+
+    if (otpSaved) {
+      /**
+       * The token used for comparing the received OTP via email with the
+       * generated token, which contains the user's ID.
+       */
+      const accessToken = jwt.sign({ id, FAEnabled: true }, process.env.SECRET_KEY as string, {
+        expiresIn: process.env.JWT_EXPIRATION as string,
+      });
+      res.status(200).json({ ok: true, token: accessToken });
+    }
+  }
+};

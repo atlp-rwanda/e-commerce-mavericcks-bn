@@ -1,0 +1,124 @@
+tags:
+  - name: Product
+    description: Operations related to products
+
+paths:
+  /api/{categoryId}/products:
+    post:
+      summary: Create a new product
+      tags:
+        - Product
+      description: Create a new product in the store
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+          description: ID of the category to which the product belongs
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name *:
+                  type: string
+                  description: Name of the product to which the product belongs
+                sellerId *:
+                  type: string
+                  description: Name of the seller to which the product belongs to
+                description *:
+                  type: string
+                  description: Description to which the product
+                price *:
+                  type: number
+                  description: Price of the product
+                quantity:
+                  type: number
+                  description: Quantity of the product(by default it's 1)
+                expiryDate:
+                  type: string
+                  format: date
+                  description: For products that might end
+                images *:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Array of product images (minimum 4 images required)
+      responses:
+        201:
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Product'
+                  message:
+                    type: string
+                    example: Thank you for adding a new product in the store!
+        400:
+          description: Bad request, invalid parameters provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Product should have at least 4 images
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Something went wrong when creating the product
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the product
+        description:
+          type: string
+          description: Description of the product
+        price:
+          type: number
+          format: float
+          description: Price of the product
+        categoryId:
+          type: string
+          description: ID of the category to which the product belongs
+        images:
+          type: array
+          items:
+            type: string
+          description: Array of URLs of product images

@@ -269,3 +269,25 @@ export const resendVerifyLink = async (req: Request, res: Response) => {
     sendInternalErrorResponse(res, error);
   }
 };
+// Function to enable two factor authentication(2FA)
+export const enable2FA = async (req: Request, res: Response) => {
+  try {
+    const userId = (req.user as User).id;
+
+    if (!userId) {
+      return res.status(404).json({ ok: false, error: 'UserId Not Found' });
+    }
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(400).json({ ok: false, error: 'User not found' });
+    }
+    user.enable2FA = !user.enable2FA;
+    await user.save();
+
+    res.status(201).json({ ok: true, message: `2FA status toggled to ${user.enable2FA}` });
+  } catch (error) {
+    logger.error('Enable 2FA', error);
+    sendInternalErrorResponse(res, error);
+  }
+};

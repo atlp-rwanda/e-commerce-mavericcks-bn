@@ -2,11 +2,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { config } from 'dotenv';
 import jwt from 'jsonwebtoken';
-
 import logger from '../logs/config';
 import User from '../database/models/user';
 import Role from '../database/models/role';
 import { sendInternalErrorResponse } from '../validations';
+import { sendOTP } from '../controllers/authController';
+import { userToken } from '../helpers/token.generator';
 
 config();
 
@@ -68,4 +69,24 @@ export const checkUserRoles = (requiredRole: string) => {
     }
     next();
   };
+};
+
+export const verifyIfSeller = async (user: any, req: Request, res: Response) => {
+  const userRoleId = await user.dataValues.RoleId;
+  const enabled2FA = await user.dataValues.enable2FA;
+  const userRole = await Role.findOne({ where: { id: userRoleId } });
+
+  // Check if it's seller
+  if (enabled2FA && userRole?.dataValues.name === 'seller') {
+    // Find seller information
+    sendOTP(req, res, user.dataValues.email);
+  } else {
+    // Authenticate user with jwt
+    const token = await userToken(user.id);
+
+    res.status(200).json({
+      ok: true,
+      token: token,
+    });
+  }
 };

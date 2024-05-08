@@ -13,20 +13,20 @@ config();
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authorization = req.headers.authorization;
+    const token = req.headers.authorization ?? req.params.token;
 
-    if (!authorization) {
+    if (!token) {
       logger.error('Authentication required.');
       return res.status(401).json({ message: 'Authentication required.' });
     }
-    const token = authorization.split(' ')[1];
+
     jwt.verify(token, process.env.SECRET_KEY!, async (err, decoded: any) => {
       if (err) {
         if (err.name === 'TokenExpiredError') {
           logger.error('Token has expired.');
           return res.status(401).json({ message: 'Token has expired.' });
         }
-        logger.error('Invalid token.');
+        logger.error(err.message);
         return res.status(401).json({ message: 'Invalid token.' });
       }
 

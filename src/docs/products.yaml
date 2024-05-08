@@ -3,7 +3,7 @@ tags:
     description: Operations related to products
 
 paths:
-# DOCS FOR GETTING ALL THE PRODUCTS
+  # DOCS FOR GETTING ALL THE PRODUCTS
   /api/products:
     get:
       summary: Get all product from store excluding expired products
@@ -24,12 +24,12 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: "#/components/schemas/Product"
+                    $ref: '#/components/schemas/Product'
                   message:
                     type: string
-                    example: "Available products retrieved successfully"
+                    example: 'Available products retrieved successfully'
         500:
-          description: "Internal Server Error"
+          description: 'Internal Server Error'
 
   # DOCS FOR GETTING A SPECIFIC PRODUCT
   /api/products/{productId}:
@@ -57,14 +57,14 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: "#/components/schemas/Product"
+                    $ref: '#/components/schemas/Product'
                   message:
                     type: string
-                    example: "product retrieved successfully"
+                    example: 'product retrieved successfully'
         404:
           description: product not found
         500:
-          description: "Internal Server Error"
+          description: 'Internal Server Error'
 
   # DOCS FOR DELETING A PRODUCT BY ID
   /api/products/{id}:
@@ -95,16 +95,16 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: "#/components/schemas/Product"
+                    $ref: '#/components/schemas/Product'
                   message:
                     type: string
-                    example: "product deleted successfully"
+                    example: 'product deleted successfully'
         403:
           description: unauthorized
         404:
           description: product not found
         500:
-          description: "Internal Server Error"
+          description: 'Internal Server Error'
   /api/{categoryId}/products:
     post:
       summary: Create a new product
@@ -167,7 +167,7 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: "#/components/schemas/Product"
+                    $ref: '#/components/schemas/Product'
                   message:
                     type: string
                     example: Thank you for adding a new product in the store!
@@ -203,15 +203,14 @@ paths:
                   message:
                     type: string
                     example: Something went wrong when creating the product
-<<<<<<< HEAD
 
 /api/products/{sizeId}/available:
   put:
     security:
-     - bearerAuth: []
+      - bearerAuth: []
     summary: Mark a product as available in stock
     tags:
-        - Product
+      - Product
     description: |
       This endpoint marks a product for a given sizeId as available.
     parameters:
@@ -223,7 +222,7 @@ paths:
     responses:
       200:
         description: Product marked as available successfully
-        schema: 
+        schema:
           type: object
           properties:
             ok:
@@ -236,8 +235,8 @@ paths:
         description: Message response when the product cannot be marked as available
         schema:
           type: object
-          properties: 
-            ok: 
+          properties:
+            ok:
               type: boolean
               example: false
             message:
@@ -251,7 +250,7 @@ paths:
             ok:
               type: boolean
               example: false
-            message: 
+            message:
               type: string
               example: This size is not available
       500:
@@ -263,7 +262,7 @@ paths:
       - bearerAuth: []
     summary: Mark a product as unavailable in stock
     tags:
-        - Product
+      - Product
     description: |
       This endpoint marks a product for a given sizeId as unavailable when there is low stock or expired date is up.
     parameters:
@@ -275,7 +274,7 @@ paths:
     responses:
       200:
         description: Product marked as unavailable in stock successfully
-        schema: 
+        schema:
           type: object
           properties:
             ok:
@@ -288,8 +287,8 @@ paths:
         description: Message response when the product cannot be marked as unavailable
         schema:
           type: object
-          properties: 
-            ok: 
+          properties:
+            ok:
               type: boolean
               example: false
             message:
@@ -303,19 +302,20 @@ paths:
             ok:
               type: boolean
               example: false
-            message: 
+            message:
               type: string
               example: This size is not available
       500:
         description: Internal server error
 
-=======
   /api/notifications/{userId}:
     get:
       tags:
         - Product
       summary: Fetching all notifications for product creation
-      description: This get all notifications that are also related to certain product lifecycle change and also related to the user.
+      description:
+        This get all notifications that are also related to certain product lifecycle change and also related to the
+        user.
       security:
         - bearerAuth: []
       parameters:
@@ -328,7 +328,6 @@ paths:
           description: Notifications were not found! Please try again
         200:
           description: Notifications were successfully fetched
->>>>>>> 8a7df7b (Creating notifications)
 components:
   securitySchemes:
     bearerAuth:

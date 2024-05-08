@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
+import { Transaction } from 'sequelize';
 import uploadImage from '../helpers/claudinary';
 import { sendInternalErrorResponse } from '../validations';
 import { Product, ProductAttributes } from '../database/models/Product';
 import { Size, SizeAttributes } from '../database/models/Size';
 import logger from '../logs/config';
+import sequelize from '../database/models';
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -24,7 +26,7 @@ export const createProduct = async (req: Request, res: Response) => {
       });
     }
     // handle images
-    const productImages = ['asdf', 'asdf', 'asdf', 'asdf'];
+    const productImages: string[] = [];
     const images: unknown = req.files;
     if (images instanceof Array && images.length > 3) {
       for (const image of images) {
@@ -39,14 +41,7 @@ export const createProduct = async (req: Request, res: Response) => {
     }
 
     // create product
-    await Product.create({
-      sellerId,
-      name,
-      description,
-      categoryId,
-      colors,
-      images: productImages,
-    });
+    await Product.create({ sellerId, name, description, categoryId, colors, images: productImages });
 
     res.status(201).json({
       ok: true,
@@ -151,6 +146,110 @@ export const markProductAsAvailable = async (req: Request, res: Response) => {
     }
   } catch (error) {
     logger.error(error);
+    sendInternalErrorResponse(res, error);
+  }
+};
+
+// Function to get all products available in the database
+export const getAllProduct = async (req: Request, res: Response) => {
+  try {
+    // Fetch all products with their associated sizes
+    const products: any = await Product.findAll({
+      include: [{ model: Size, as: 'Sizes' }],
+    });
+
+    const currentDate = new Date();
+
+    // Filter products and remove expired sizes while keeping non-expired ones
+    const availableProducts = products.map((product: { Sizes: any[]; toJSON: () => any }) => {
+      const validSizes = product.Sizes.filter(
+        (size: { expiryDate: string | number | Date }) => new Date(size.expiryDate) > currentDate
+      );
+      return {
+        ...product.toJSON(),
+        Sizes: validSizes,
+      };
+    });
+
+    res.status(200).json({
+      ok: true,
+      message: 'All products retrieved successfully',
+      data: availableProducts,
+    });
+  } catch (error) {
+    sendInternalErrorResponse(res, error);
+  }
+};
+
+// a function to get a certain product by ID
+export const getProductById = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findByPk(productId, {
+      include: [{ model: Size, as: 'Sizes' }],
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Product not found',
+      });
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Product retrieved successfully',
+      data: product,
+    });
+  } catch (error) {
+    sendInternalErrorResponse(res, error);
+  }
+};
+
+// a function to delete product by ID
+export const deleteProductById = async (req: Request, res: Response) => {
+  let transaction: Transaction | null = null;
+
+  try {
+    const { id } = req.params;
+
+    transaction = await sequelize.transaction();
+
+    // Find the product by ID
+    const product = await Product.findByPk(id, { transaction });
+
+    if (!product) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Product not found',
+      });
+    }
+
+    // Verify that the requesting user is the owner of the product
+    const userId = (await (req.user as any)).id;
+    if (product.sellerId !== userId) {
+      return res.status(403).json({
+        ok: false,
+        message: 'Unauthorized: You are not authorized to delete this product',
+      });
+    }
+
+    // deleting product related sizes
+    const sizes = await Size.findAll({ where: { id }, transaction });
+    await Size.destroy({ where: { id }, transaction });
+
+    // deleting the product itself
+    await product.destroy({ transaction });
+
+    await transaction.commit();
+
+    res.status(200).json({
+      ok: true,
+      message: 'Product deleted successfully',
+    });
+  } catch (error) {
+    // Rollback the transaction if an error occurs
+    if (transaction) await transaction.rollback();
     sendInternalErrorResponse(res, error);
   }
 };

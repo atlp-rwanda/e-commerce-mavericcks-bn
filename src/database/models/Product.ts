@@ -3,6 +3,7 @@ import sequelize from './index';
 import { UUIDV4 } from 'sequelize';
 import { Category } from './Category';
 import { Size } from './Size';
+import User from './user';
 
 export interface ProductAttributes {
   id?: string;
@@ -74,5 +75,6 @@ Product.init(
 );
 
 Product.belongsTo(Category, { foreignKey: 'categoryId' });
+Product.belongsTo(User, { foreignKey: 'sellerId', as: 'Users' });
 
 Product.hasMany(Size, { foreignKey: 'productId' });

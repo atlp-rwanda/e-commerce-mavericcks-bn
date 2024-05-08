@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 import nodemailer from 'nodemailer';
 import Mailgen from 'mailgen';
 import logger from '../logs/config';
+import { Product } from '../database/models/Product';
 
 config();
 
@@ -10,6 +11,7 @@ interface IData {
   name: string;
   link?: string;
   otp?: string;
+  productName?: string;
 }
 interface EmailContent {
   name: string;
@@ -152,6 +154,27 @@ export const sendEmail = async (type: string, data: IData) => {
         mailOptions.subject = 'Reset password';
         mailOptions.html = mailGenerator.generate(email);
         break;
+      case 'product_expired':
+        email = {
+          body: {
+            name: data.name,
+            intro: ` Your product ${data.productName} has been delisted due to expiration please check and take action.`,
+            action: {
+              instructions: 'If you have any questions or need assistance, please contact our support team.',
+              button: {
+                color: '#22BC66',
+                text: 'Contact Support',
+                link: 'mailto:andela.mavericks@gmail.com',
+              },
+            },
+            outro: 'Thank you for your understanding.',
+          },
+        };
+
+        mailOptions.subject = 'Product Delisted';
+        mailOptions.html = mailGenerator.generate(email);
+        break;
+
       case 'OTP':
         const emailContent = `
         <html>

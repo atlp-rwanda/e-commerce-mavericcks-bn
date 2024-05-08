@@ -3,11 +3,113 @@ tags:
     description: Operations related to products
 
 paths:
+# DOCS FOR GETTING ALL THE PRODUCTS
+  /api/products:
+    get:
+      summary: Get all product from store excluding expired products
+      tags:
+        - Product
+      responses:
+        200:
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Product"
+                  message:
+                    type: string
+                    example: "Available products retrieved successfully"
+        500:
+          description: "Internal Server Error"
+
+  # DOCS FOR GETTING A SPECIFIC PRODUCT
+  /api/products/{productId}:
+    get:
+      summary: get a specific product by ID
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          type: string
+      responses:
+        200:
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Product"
+                  message:
+                    type: string
+                    example: "product retrieved successfully"
+        404:
+          description: product not found
+        500:
+          description: "Internal Server Error"
+
+  # DOCS FOR DELETING A PRODUCT BY ID
+  /api/products/{id}:
+    delete:
+      summary: delete a specified product
+      security:
+        - bearerAuth: []
+      tags:
+        - Product
+      description: Delete a product from the store
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      responses:
+        200:
+          description: Products deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Product"
+                  message:
+                    type: string
+                    example: "product deleted successfully"
+        403:
+          description: unauthorized
+        404:
+          description: product not found
+        500:
+          description: "Internal Server Error"
   /api/{categoryId}/products:
     post:
-      security:
-       - bearerAuth: []
       summary: Create a new product
+      security:
+        - bearerAuth: []
       tags:
         - Product
       description: Create a new product in the store
@@ -65,7 +167,7 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: '#/components/schemas/Product'
+                    $ref: "#/components/schemas/Product"
                   message:
                     type: string
                     example: Thank you for adding a new product in the store!

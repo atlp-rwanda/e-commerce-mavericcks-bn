@@ -4,7 +4,7 @@ import userRoute from './userRoute';
 import profileRoutes from './profileRoutes';
 import authRoute from './authRoute';
 import roleRoute from './roleRoute';
-import { productRouter } from './productRoutes';
+import productRouter from './productRoutes';
 import { categoryRouter } from './categoryRouter';
 
 const router = Router();

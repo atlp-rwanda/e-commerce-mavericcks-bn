@@ -1,17 +1,19 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-import express from 'express';
+import { Router } from 'express';
 import {
   createProduct,
   createSize,
+  deleteProductById,
+  getAllProduct,
+  getProductById,
   markProductAsAvailable,
   markProductAsUnavailable,
 } from '../controllers/productsController';
 import multerUpload from '../helpers/multer';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
 
-export const productRouter = express.Router();
+const router = Router();
 
-productRouter.post(
+router.post(
   '/:categoryId/create-product/',
   isAuthenticated,
   checkUserRoles('seller'),
@@ -19,6 +21,12 @@ productRouter.post(
   createProduct
 );
 
-productRouter.post('/:productId/add-size', isAuthenticated, checkUserRoles('seller'), createSize);
-productRouter.put('/:sizeId/available', isAuthenticated, checkUserRoles('seller'), markProductAsAvailable);
-productRouter.put('/:sizeId/unavailable', isAuthenticated, checkUserRoles('seller'), markProductAsUnavailable);
+router.post('/:productId/add-size', isAuthenticated, checkUserRoles('seller'), createSize);
+
+router.get('/', getAllProduct);
+router.get('/:productId', getProductById);
+router.delete('/:id', isAuthenticated, checkUserRoles('seller'), deleteProductById);
+router.put('/:sizeId/available', isAuthenticated, checkUserRoles('seller'), markProductAsAvailable);
+router.put('/:sizeId/unavailable', isAuthenticated, checkUserRoles('seller'), markProductAsUnavailable);
+
+export default router;

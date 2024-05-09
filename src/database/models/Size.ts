@@ -9,6 +9,7 @@ export interface SizeAttributes {
   discount?: number;
   expiryDate?: Date;
   productId: string;
+  available?: boolean;
 }
 
 export interface SizeCreationAttributes extends Optional<SizeAttributes, 'id'> {}
@@ -21,6 +22,7 @@ export class Size extends Model<SizeAttributes, SizeCreationAttributes> implemen
   public discount!: number;
   public expiryDate!: Date;
   public productId!: string;
+  public available!: boolean;
 }
 
 Size.init(
@@ -61,6 +63,11 @@ Size.init(
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
       allowNull: false,
+    },
+    available: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true, // Set default value to true
     },
   },
   {

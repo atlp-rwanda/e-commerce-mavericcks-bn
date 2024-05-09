@@ -4,6 +4,7 @@ import uploadImage from '../helpers/claudinary';
 import { sendInternalErrorResponse } from '../validations';
 import { Product, ProductAttributes } from '../database/models/Product';
 import { Size, SizeAttributes } from '../database/models/Size';
+import logger from '../logs/config';
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -67,5 +68,100 @@ export const createSize = async (req: Request, res: Response) => {
     });
   } catch (error) {
     sendInternalErrorResponse(res, error);
+  }
+};
+
+// markProductsUnavailable
+export const markProductAsUnavailable = async (req: Request, res: Response) => {
+  try {
+    const { sizeId } = req.params;
+
+    // find if given size exist
+    const sizeExist: any = await Size.findByPk(sizeId);
+
+    if (!sizeExist) {
+      res.status(404).json({
+        ok: false,
+        message: 'This size is not available',
+      });
+    }
+
+    // check if size has corresponding product
+    const product = await Product.findByPk(sizeExist?.productId);
+
+    if (!product) {
+      res.status(404).json({
+        ok: false,
+        message: 'This Product does not exist',
+      });
+    }
+
+    // update unavailability of product if expired date is less than current date or quantity<=0
+    const isExpired = sizeExist.expiryDate <= new Date();
+    const isQuantityAvailable = sizeExist.quantity >= 1;
+
+    if (isExpired || !isQuantityAvailable) {
+      await Size.update({ available: false }, { where: { id: sizeId } });
+
+      res.status(200).json({
+        ok: true,
+        message: 'This Product is successfully marked as unavailable',
+      });
+    } else {
+      res.status(403).json({
+        ok: false,
+        message: 'This Product already exist in stock with valid expiration date',
+      });
+    }
+  } catch (error) {
+    sendInternalErrorResponse(res, error);
+    logger.error(error);
+  }
+};
+
+export const markProductAsAvailable = async (req: Request, res: Response) => {
+  try {
+    const { sizeId } = req.params;
+
+    // find if given size exist
+    const sizeExist: any = await Size.findByPk(sizeId);
+
+    if (!sizeExist) {
+      res.status(404).json({
+        ok: false,
+        message: 'This size is not available',
+      });
+    }
+
+    // check if size has corresponding product
+    const product = await Product.findByPk(sizeExist?.productId);
+
+    if (!product) {
+      res.status(404).json({
+        ok: false,
+        message: 'This Product does not exist',
+      });
+    }
+
+    // mark availability of product
+    const isExpired = sizeExist.expiryDate > new Date();
+    const isQuantityAvailable = sizeExist.quantity >= 1;
+
+    if (isExpired && isQuantityAvailable) {
+      await Size.update({ available: true }, { where: { id: sizeId } });
+
+      res.status(200).json({
+        ok: true,
+        message: 'This Product is successfully marked as available',
+      });
+    } else {
+      res.status(403).json({
+        ok: false,
+        message: 'Check This Product in stock for its quantity and expired date',
+      });
+    }
+  } catch (error) {
+    sendInternalErrorResponse(res, error);
+    logger.error(error);
   }
 };

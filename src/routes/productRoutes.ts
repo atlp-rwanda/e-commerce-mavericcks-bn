@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express';
-import { createProduct, createSize } from '../controllers/productsController';
+import {
+  createProduct,
+  createSize,
+  markProductAsAvailable,
+  markProductAsUnavailable,
+} from '../controllers/productsController';
 import multerUpload from '../helpers/multer';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
 
@@ -15,3 +20,5 @@ productRouter.post(
 );
 
 productRouter.post('/:productId/add-size', isAuthenticated, checkUserRoles('seller'), createSize);
+productRouter.put('/:sizeId/available', isAuthenticated, checkUserRoles('seller'), markProductAsAvailable);
+productRouter.put('/:sizeId/unavailable', isAuthenticated, checkUserRoles('seller'), markProductAsUnavailable);

@@ -5,6 +5,8 @@ tags:
 paths:
   /api/{categoryId}/products:
     post:
+      security:
+       - bearerAuth: []
       summary: Create a new product
       tags:
         - Product
@@ -99,7 +101,117 @@ paths:
                   message:
                     type: string
                     example: Something went wrong when creating the product
+
+/api/products/{sizeId}/available:
+  put:
+    security:
+     - bearerAuth: []
+    summary: Mark a product as available in stock
+    tags:
+        - Product
+    description: |
+      This endpoint marks a product for a given sizeId as available.
+    parameters:
+      - name: sizeId
+        in: path
+        description: ID of the size to mark
+        required: true
+        type: string
+    responses:
+      200:
+        description: Product marked as available successfully
+        schema: 
+          type: object
+          properties:
+            ok:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: This product is successfully marked as available
+      403:
+        description: Message response when the product cannot be marked as available
+        schema:
+          type: object
+          properties: 
+            ok: 
+              type: boolean
+              example: false
+            message:
+              type: string
+              example: Check this product in stock for its quantity and expiration date
+      404:
+        description: Message when the size or product is not found
+        schema:
+          type: object
+          properties:
+            ok:
+              type: boolean
+              example: false
+            message: 
+              type: string
+              example: This size is not available
+      500:
+        description: Internal server error
+
+/api/products/{sizeId}/unavailable:
+  put:
+    security:
+      - bearerAuth: []
+    summary: Mark a product as unavailable in stock
+    tags:
+        - Product
+    description: |
+      This endpoint marks a product for a given sizeId as unavailable when there is low stock or expired date is up.
+    parameters:
+      - name: sizeId
+        in: path
+        description: ID of the size to mark
+        required: true
+        type: string
+    responses:
+      200:
+        description: Product marked as unavailable in stock successfully
+        schema: 
+          type: object
+          properties:
+            ok:
+              type: boolean
+              example: true
+            message:
+              type: string
+              example: This product is successfully marked as unavailable
+      403:
+        description: Message response when the product cannot be marked as unavailable
+        schema:
+          type: object
+          properties: 
+            ok: 
+              type: boolean
+              example: false
+            message:
+              type: string
+              example: This Product already exist in stock with valid expiration date
+      404:
+        description: Message when the size or product is not found
+        schema:
+          type: object
+          properties:
+            ok:
+              type: boolean
+              example: false
+            message: 
+              type: string
+              example: This size is not available
+      500:
+        description: Internal server error
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Product:
       type: object

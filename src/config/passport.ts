@@ -20,7 +20,6 @@ passport.use(
         return done(new Error('Email not found in the Google profile'), undefined);
       }
 
-      console.log(profile);
       // Extract user's email from the Google profile
       const email = profile.emails[0].value;
 

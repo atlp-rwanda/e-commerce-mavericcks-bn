@@ -10,6 +10,7 @@ import passport from './config/passport';
 import logger, { errorLogger } from './logs/config';
 import expressWinston from 'express-winston';
 import databaseConnection from './database';
+import scheduledTasks from './config/cornJobs';
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.all('*', (req: Request, res: Response): void => {
 });
 
 databaseConnection();
+scheduledTasks();
 
 const PORT = process.env.PORT ?? 3000;
 app.listen(PORT, () => {

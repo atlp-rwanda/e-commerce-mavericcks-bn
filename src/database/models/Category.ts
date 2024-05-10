@@ -13,7 +13,6 @@ export class Category extends Model<CategoryAttributes, CategoryCreationAttribut
   public id!: number;
   public name!: string;
   public description!: string;
-  public sizes!: string[];
 }
 
 Category.init(

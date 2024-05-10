@@ -222,6 +222,25 @@ export const sendEmail = async (type: string, data: IData) => {
         mailOptions.subject = 'Verification code';
         mailOptions.html = emailContent;
         break;
+      case 'added_product_notification':
+        email = {
+          body: {
+            name: data.name,
+            intro: `Your product has been added successfully!`,
+            action: {
+              instructions: 'To view your product on platform, Click here:',
+              button: {
+                color: '#22BC66',
+                text: 'View on the platform',
+                link: 'https://e-commerce-mavericks.com/login',
+              },
+            },
+            outro: 'Thank you for working with us. If you need any help, please free to contact us!',
+          },
+        };
+        mailOptions.subject = 'Product added successfully';
+        mailOptions.html = mailGenerator.generate(email);
+        break;
     }
     const info = await transporter.sendMail(mailOptions);
     logger.info('Send Mailer', info);

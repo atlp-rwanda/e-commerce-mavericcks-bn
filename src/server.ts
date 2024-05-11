@@ -10,6 +10,7 @@ import passport from './config/passport';
 import logger, { errorLogger } from './logs/config';
 import expressWinston from 'express-winston';
 import databaseConnection from './database';
+import { schedulePasswordUpdatePrompts } from './scheduler';
 import scheduledTasks from './config/cornJobs';
 
 dotenv.config();
@@ -46,6 +47,8 @@ app.use(
 app.all('*', (req: Request, res: Response): void => {
   res.status(404).json({ message: 'route not found' });
 });
+
+schedulePasswordUpdatePrompts();
 
 databaseConnection();
 scheduledTasks();

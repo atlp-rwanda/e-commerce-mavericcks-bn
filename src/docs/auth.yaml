@@ -1,5 +1,4 @@
 paths:
-
   /api/auth/google:
     get:
       summary: Authenticate with Google
@@ -16,7 +15,7 @@ paths:
   /api/auth/login:
     post:
       summary: User Login
-      tags: 
+      tags:
         - Login
       description: Authenticate user email and password and generate access token
       requestBody:
@@ -48,16 +47,16 @@ paths:
                 description: Access token for authentication
         400:
           description: Invalid request parameters
-        404: 
+        404:
           description: User not found or incorrect credentials
         500:
           description: Internal server error
   /api/auth/{token}/otp:
     post:
-      summary: "Endpoint to verify OTP sent to you"
+      summary: 'Endpoint to verify OTP sent to you'
       tags:
         - Login
-      parameters: 
+      parameters:
         - in: path
           name: token
           required: true
@@ -74,14 +73,96 @@ paths:
                   type: string
       responses:
         200:
-          description: "Get new to token for login"
+          description: 'Get new to token for login'
         404:
-          description: "No user sent token"
+          description: 'No user sent token'
         400:
-          description: "OTP Enter is wrong"
+          description: 'OTP Enter is wrong'
         403:
-          description: "Token expired"
+          description: 'Token expired'
+
+  /api/auth/forgot-password:
+    post:
+      summary: Request Password Reset
+      tags:
+        - Password Reset
+      description: |
+        Allows users to request a password reset link. The user must provide their email address. If the user exists, a password reset link will be sent to the provided email.
+      requestBody:
+        description: User's email address to request a password reset link
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+      responses:
+        200:
+          description: Password reset link sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Confirmation message indicating the email was sent
+        404:
+          description: User with this email does not exist
+        500:
+          description: Internal server error
+
+  /api/auth/reset-password/{token}:
+    post:
+      summary: Reset Password
+      tags:
+        - Password Reset
+      description: |
+        Allows users to reset their password using a valid token received in the password reset link. The token is passed as a URL parameter, and the new password is provided by the user in the request body.
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Token received for resetting password via email
+      requestBody:
+        description: New password to be set for the user
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newPassword:
+                  type: string
+                  description: User's new password
+      responses:
+        200:
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  message:
+                    type: string
+                    description: Confirmation message indicating the password reset was successful
+        404:
+          description: Password reset token is invalid or has expired, or user does not exist
+        500:
+          description: Internal server error
 
 tags:
   - name: Login
     description: Login a user
+  - name: Password Reset
+    description: Endpoints for password recovery and reset functionality

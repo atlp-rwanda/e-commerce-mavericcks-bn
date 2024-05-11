@@ -32,7 +32,7 @@ export const signupUser = async (req: Request, res: Response) => {
     if (!validatePassword(password)) {
       return res.status(400).json({
         ok: false,
-        error: 'Ensuring it contains at least 1 letter, 1 number, and 1 special character, minumun 8 characters',
+        error: 'Password contains at least 1 letter, 1 number, and 1 special character, minumun 8 characters',
       });
     }
 

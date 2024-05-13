@@ -2,6 +2,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, StrategyOptionsWithRequest } from 'passport-google-oauth20';
 import User, { UserAttributes } from '../database/models/user';
+import getDefaultRole from '../helpers/defaultRoleGenerator';
 
 // Defining options required for Google OAuth 2.0 authentication strategy
 const googleStrategyOptions: StrategyOptionsWithRequest = {
@@ -41,6 +42,7 @@ passport.use(
         verified: true,
         createdAt: new Date(),
         updatedAt: new Date(),
+        RoleId: await getDefaultRole(),
       };
 
       const newUser = await User.create(newUserAttributes as UserAttributes);

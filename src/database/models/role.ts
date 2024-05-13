@@ -27,7 +27,7 @@ Role.init(
       defaultValue: UUIDV4,
     },
     name: {
-      type: DataTypes.ENUM('admin', 'buyer', 'guest', 'vendor'),
+      type: DataTypes.ENUM('admin', 'buyer', 'seller'),
       allowNull: false,
       unique: true,
       set(value: string) {

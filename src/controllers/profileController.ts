@@ -6,7 +6,7 @@ import Role from '../database/models/role';
 import { sendInternalErrorResponse } from '../validations';
 
 export const getUserProfile = async (req: Request, res: Response): Promise<void> => {
-  const userId: string = req.params.userId;
+  const userId: string = req.params.userId ? req.params.userId : (req.user as User).id;
 
   try {
     const user = await User.findByPk(userId, {
@@ -18,7 +18,7 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
     });
 
     if (!user) {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ ok: false, message: 'User not found' });
       return;
     }
 

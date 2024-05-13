@@ -18,7 +18,7 @@ import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares'
 const router = Router();
 
 router.post('/signup', signupUser);
-router.get('/:page?', isAuthenticated, getAllUser);
+router.get('/:page?', isAuthenticated, checkUserRoles('admin'), getAllUser);
 router.get('/user/:id', isAuthenticated, getOneUser);
 router.delete('/:id', isAuthenticated, checkUserRoles('admin'), deleteUser);
 router.patch('/edit/:id', isAuthenticated, multerUpload.single('profileImage'), editUser);

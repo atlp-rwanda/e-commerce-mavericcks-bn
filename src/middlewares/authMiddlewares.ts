@@ -11,7 +11,7 @@ import { userToken } from '../helpers/token.generator';
 
 config();
 
-export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.headers.authorization ?? req.params.token;
 
@@ -20,7 +20,7 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
       return res.status(401).json({ message: 'Authentication required.' });
     }
 
-    jwt.verify(token, process.env.SECRET_KEY!, async (err, decoded: any) => {
+    await jwt.verify(token, process.env.SECRET_KEY!, async (err, decoded: any) => {
       if (err) {
         if (err.name === 'TokenExpiredError') {
           logger.error('Token has expired.');

@@ -11,7 +11,7 @@ const checkProductExpiryAndNotifySeller = async () => {
     // Find all products with expired sizes and include the associated Seller
     const expiredProducts = await Product.findAll({
       include: [
-        { model: Size, as: 'Sizes' },
+        { model: Size, as: 'sizes' },
         { model: User, as: 'Users' },
       ],
     });

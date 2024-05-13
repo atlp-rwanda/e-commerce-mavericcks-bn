@@ -135,19 +135,14 @@ User.init(
       defaultValue: false,
     },
   },
-  { sequelize: sequelize, timestamps: true, modelName: 'User' }
+  {
+    sequelize: sequelize,
+    timestamps: true,
+    modelName: 'User',
+  }
 );
 
-User.beforeCreate(async (user: User) => {
-  try {
-    const defaultRole = await getDefaultRole();
-    user.RoleId = defaultRole;
-  } catch (error) {
-    logger.error('Error setting default role:', error);
-    throw error;
-  }
-});
-
+Role.hasMany(User, { foreignKey: 'RoleId' });
 User.belongsTo(Role);
 VendorRequest.belongsTo(User, { foreignKey: 'vendorId' });
 User.hasOne(VendorRequest, { foreignKey: 'vendorId' });

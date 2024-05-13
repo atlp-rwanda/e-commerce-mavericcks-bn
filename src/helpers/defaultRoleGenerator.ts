@@ -4,7 +4,6 @@ import logger from '../logs/config';
 
 const getDefaultRole = async () => {
   const defaultRole = await Role.findOne({ where: { name: 'buyer' } });
-
   if (!defaultRole) {
     logger.error('Default role not found.');
     return;

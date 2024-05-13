@@ -61,8 +61,9 @@ export const createProduct = async (req: Request, res: Response) => {
 export const createSize = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
-    const { size, price, discount, expiryDate } = req.body as SizeAttributes;
-    await Size.create({ size, price, discount, expiryDate, productId });
+    const { size, price, discount, expiryDate, quantity } = req.body as SizeAttributes;
+
+    const result = await Size.create({ size, price, discount, expiryDate, productId, quantity });
     res.status(201).json({
       ok: true,
       message: 'Product size added successfully',
@@ -124,7 +125,20 @@ export const updateProduct = async (req: Request, res: Response) => {
     sendInternalErrorResponse(res, error);
   }
 };
-
+// get size
+export const getAllSizes = async (req: Request, res: Response) => {
+  try {
+    const sizes = await Size.findAll();
+    if (!sizes) {
+      res.status(404).json({ ok: false, message: 'No size found!' });
+      return;
+    }
+    res.status(200).json({ ok: true, sizes });
+  } catch (err) {
+    logger.error(err);
+    sendInternalErrorResponse(res, err);
+  }
+};
 // update size
 export const updateSize = async (req: Request, res: Response) => {
   try {
@@ -229,15 +243,15 @@ export const getAllProduct = async (req: Request, res: Response) => {
   try {
     // Fetch all products with their associated sizes
     const products: any = await Product.findAll({
-      include: [{ model: Size, as: 'Sizes' }],
+      include: [{ model: Size, as: 'sizes' }],
     });
 
     const currentDate = new Date();
 
     // Filter products and remove expired sizes while keeping non-expired ones
-    const availableProducts = products.map((product: { Sizes: any[]; toJSON: () => any }) => {
-      const validSizes = product.Sizes.filter(
-        (size: { expiryDate: string | number | Date }) => new Date(size.expiryDate) > currentDate
+    const availableProducts = products.map((product: { sizes: any[]; toJSON: () => any }) => {
+      const validSizes = product.sizes.filter(
+        (size: { expiryDate: string | number | Date }) => new Date(size.expiryDate) <= currentDate
       );
       return {
         ...product.toJSON(),
@@ -260,7 +274,7 @@ export const getProductById = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const product = await Product.findByPk(productId, {
-      include: [{ model: Size, as: 'Sizes' }],
+      include: [{ model: Size, as: 'sizes' }],
     });
 
     if (!product) {

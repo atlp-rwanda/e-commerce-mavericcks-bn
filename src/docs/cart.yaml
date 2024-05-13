@@ -1,0 +1,55 @@
+paths:
+  /api/cart:
+    get:
+      summary: Get all cart items
+      tags:
+        - Cart
+      security:
+        - isAuthenticated: []
+      responses:
+        '200':
+          description: Successful retrieval of cart items
+        '401':
+          description: Unauthorized user
+
+    post:
+      summary: Add item to cart
+      tags:
+        - Cart
+      security:
+        - isAuthenticated: []
+      responses:
+        '201':
+          description: Item added to cart successfully
+        '401':
+          description: Unauthorized user
+
+    delete:
+      summary: Clear cart
+      tags:
+        - Cart
+      security:
+        - isAuthenticated: []
+      responses:
+        '200':
+          description: Cart cleared successfully
+        '401':
+          description: Unauthorized user
+
+    patch:
+      summary: Update a cart item by ID
+      tags:
+        - Cart
+      security:
+        - isAuthenticated: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cart item updated successfully
+        '401':
+          description: Unauthorized user

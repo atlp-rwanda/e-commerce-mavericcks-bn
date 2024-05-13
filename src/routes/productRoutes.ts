@@ -9,6 +9,7 @@ import {
   markProductAsAvailable,
   markProductAsUnavailable,
   updateProduct,
+  getAllSizes,
 } from '../controllers/productsController';
 import multerUpload from '../helpers/multer';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
@@ -33,6 +34,7 @@ router.put(
 router.post('/:productId/add-size', isAuthenticated, checkUserRoles('seller'), createSize);
 
 router.get('/', getAllProduct);
+router.get('/sizes', isAuthenticated, checkUserRoles('seller'), getAllSizes);
 router.get('/:productId', getProductById);
 router.delete('/:id', isAuthenticated, checkUserRoles('seller'), deleteProductById);
 router.put('/:sizeId/available', isAuthenticated, checkUserRoles('seller'), markProductAsAvailable);

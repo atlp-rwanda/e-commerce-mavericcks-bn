@@ -34,7 +34,26 @@ export const authenticateViaGoogle = (req: Request, res: Response, next: NextFun
     });
   })(req, res, next);
 };
+// calculate password expiration
+const calculatePasswordExpirationDate = (user: UserAttributes): Date | null => {
+  const expirationMinutes = parseInt(process.env.PASSWORD_EXPIRATION_MINUTES as string);
+  let expirationDate: Date | null = null;
 
+  if (user.lastPasswordUpdated) {
+    expirationDate = new Date(user.lastPasswordUpdated);
+  } else if (user.createdAt) {
+    expirationDate = new Date(user.createdAt);
+  }
+
+  if (expirationDate) {
+    expirationDate.setMinutes(expirationDate.getMinutes() + expirationMinutes);
+  }
+
+  return expirationDate;
+};
+const redirectToPasswordUpdate = (res: Response): void => {
+  res.redirect('/api/user/passwordUpdate');
+};
 // login function
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -74,6 +93,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Check if the password is expired
+    const expirationDate = calculatePasswordExpirationDate(user);
+    if (expirationDate && expirationDate <= new Date()) {
+      redirectToPasswordUpdate(res);
+      return;
+    }
+
     // Verify password
     const passwordValid = await passwordCompare(password, user.password);
     if (!passwordValid) {
@@ -82,7 +108,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     await verifyIfSeller(user, req, res);
-  } catch (err: any) {
+  } catch (err) {
     const message = (err as Error).message;
     logger.error(message);
     sendInternalErrorResponse(res, err);

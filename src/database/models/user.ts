@@ -26,6 +26,7 @@ export interface UserAttributes {
   createdAt?: Date;
   updatedAt?: Date;
   RoleId?: string;
+  lastPasswordUpdated?: Date;
   enable2FA?: boolean;
 }
 
@@ -47,6 +48,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public enable2FA?: boolean | undefined;
   public readonly createdAt!: Date | undefined;
   public readonly updatedAt!: Date | undefined;
+  public lastPasswordUpdated?: Date | undefined;
 }
 
 User.init(
@@ -122,6 +124,10 @@ User.init(
         model: Role,
         key: 'id',
       },
+    },
+    lastPasswordUpdated: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     enable2FA: {
       type: DataTypes.BOOLEAN,

@@ -1,0 +1,232 @@
+tags:
+  name: Vendor_Request
+  description: Vendor Request Management API
+
+paths:
+  /api/vendor-requests:
+    post:
+      summary: Create a new product
+      security:
+        - bearerAuth: []
+      tags:
+        - Vendor_Request
+      description: Create a new Vendor Request
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                agreement *:
+                  type: boolean
+                  description: Agreement to terms and conditions example(true/false)
+                documents *:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Array of vendor documents (minimum 6 documents required)
+      responses:
+        201:
+          description: Vendor request created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  ok:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/VendorRequest'
+                  message:
+                    type: string
+                    example: Thank you for accepting to work with us!
+        400:
+          description: Bad request, invalid parameters provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Vendor documents  should be at least 6 documents
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Something went wrong when creating the request
+    get:
+      summary: Get all vendor requests
+      security:
+        - bearerAuth: []
+      tags:
+        - Vendor_Request
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorRequest'
+        500:
+          description: vendor Requests Not found!
+/api/vendor-requests/{id}:
+  get:
+    summary: Get a vendor request by ID
+    security:
+      - bearerAuth: []
+    tags:
+      - Vendor_Request
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+      '404':
+        description: Vendor request not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorMessage'
+  patch:
+    summary: Update a vendor request by ID
+    security:
+      - bearerAuth: []
+    tags:
+      - Vendor_Request
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: authorization
+        in: header
+        required: true
+        schema:
+          type: string
+          format: JWT
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/VendorRequest'
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+      '400':
+        description: Bad request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorMessage'
+      '404':
+        description: Vendor request not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorMessage'
+  delete:
+    summary: Delete a vendor request by ID
+    security:
+      - bearerAuth: []
+    tags:
+      - Vendor_Request
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuccessMessage'
+      '404':
+        description: Vendor request not found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorMessage'
+
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UpdateVendorRequestInput:
+      type: object
+      properties:
+        agreement:
+          type: string
+      required:
+        - agreement
+    VendorRequest:
+      type: object
+      properties:
+        agreement:
+          type: boolean
+          description: Agreement to our terms and conditions
+        documents:
+          type: array
+          items:
+            type: string
+          description: Array of URLs of vendor documents
+    SuccessMessage:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        message:
+          type: string
+    ErrorMessage:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        message:
+          type: string

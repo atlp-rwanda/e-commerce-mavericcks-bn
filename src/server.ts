@@ -14,7 +14,7 @@ import scheduledTasks from './config/cornJobs';
 
 dotenv.config();
 
-const app: Application = express();
+export const app: Application = express();
 
 app.use(cors());
 app.use(passport.initialize());

@@ -4,6 +4,7 @@ import sequelize from './index';
 import Role from './role';
 import getDefaultRole from '../../helpers/defaultRoleGenerator';
 import logger from '../../logs/config';
+import VendorRequest from './sellerRequest';
 
 enum UserStatus {
   ACTIVE = 'active',
@@ -115,8 +116,8 @@ User.init(
       defaultValue: UserStatus.ACTIVE,
     },
     RoleId: {
-      type: DataTypes.UUID,
-      defaultValue: UUIDV4,
+      type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: Role,
         key: 'id',
@@ -128,7 +129,7 @@ User.init(
       defaultValue: false,
     },
   },
-  { sequelize: sequelize, timestamps: true }
+  { sequelize: sequelize, timestamps: true, modelName: 'User' }
 );
 
 User.beforeCreate(async (user: User) => {
@@ -142,5 +143,6 @@ User.beforeCreate(async (user: User) => {
 });
 
 User.belongsTo(Role);
-
+VendorRequest.belongsTo(User, { foreignKey: 'vendorId' });
+User.hasOne(VendorRequest, { foreignKey: 'vendorId' });
 export default User;

@@ -1,34 +1,66 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 'use strict';
 const { v4: uuidv4 } = require('uuid');
-
+const bcrypt = require('bcrypt');
+require('ts-node').register();
+const Role = require('../models/role').default;
 /** @type {import('sequelize-cli').Seed} */
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    return queryInterface.bulkInsert(
-      'Users',
-      [
+    try {
+      await Role.sync();
+      const roles = await Role.findAll();
+      if (roles.length === 0) {
+        throw new Error('No roles found');
+      }
+      const role = roles[0].id;
+      const {
+        firstName,
+        lastName,
+        email,
+        password,
+        gender,
+        verified,
+        status,
+        phoneNumber,
+      } = process.env;
+      const users = [
         {
-          id: uuidv4(),
-          firstName: 'admin',
-          lastName: '',
-          email: process.env.EMAIL,
-          password:
-            '$2b$10$ZCgzouXesg4Zqgj22u7ale5aAOJzmjfOchCpMlSgBMV8o2f.zdYUq',
-          gender: 'not specified',
-          phoneNumber: process.env.ADMIN_PHONE,
-          verified: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          status: 'active',
-          RoleId: '6ef1e121-304a-4f08-ad4e-cd07f9578b52', // Replace with the actual RoleId
+          firstName,
+          lastName,
+          email,
+          password: await hashPassword(password),
+          gender,
+          verified: toBoolean(verified),
+          status,
+          RoleId: role,
+          phoneNumber,
         },
-      ],
-      {}
-    );
+      ];
+
+      return queryInterface.bulkInsert('Users', users.map(addUuid));
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   },
 
   async down(queryInterface, Sequelize) {
     return queryInterface.bulkDelete('Users', null, {});
   },
 };
+
+async function hashPassword(password) {
+  return await bcrypt.hash(password, 10);
+}
+function toBoolean(value) {
+  return value === 'true';
+}
+function addUuid(user) {
+  return {
+    ...user,
+    id: uuidv4(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}

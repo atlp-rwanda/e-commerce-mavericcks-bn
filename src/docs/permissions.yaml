@@ -1,0 +1,239 @@
+tags:
+  - name: Permissions
+    description: API for managing permissions.
+paths:
+  /api/permissions:
+    post:
+      tags:
+        - Permissions
+      summary: Create a permission
+      security:
+        - bearerAuth: []
+      description: Creates a new permission.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the permission.
+              required:
+                - name
+      responses:
+        '201':
+          description: Successfully created a permission.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    description: Indicates if the operation was successful.
+                    example: true
+                  data:
+                    type: object
+                    description: The created permission object.
+    get:
+      summary: Get all permissions
+      tags:
+        - Permissions
+      description: Retrieves a list of all permissions.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved permissions.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    description: Indicates if the operation was successful.
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: The ID of the permission.
+                        name:
+                          type: string
+                          description: The name of the permission.
+  /api/permissions/{id}:
+    get:
+      summary: Get a single permission
+      security:
+        - bearerAuth: []
+      tags:
+        - Permissions
+      description: Retrieves a single permission by ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the permission to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved the permission.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    description: Indicates if the operation was successful.
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: The ID of the permission.
+                      name:
+                        type: string
+                        description: The name of the permission.
+        '404':
+          description: Permission not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  errorMessage:
+                    type: string
+                    example: Permission not found.
+    put:
+      summary: Update a permission
+      tags:
+        - Permissions
+      description: Updates a permission by ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the permission to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The new name for the permission.
+              required:
+                - name
+      responses:
+        '200':
+          description: Successfully updated the permission.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    description: Indicates if the operation was successful.
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: The ID of the permission.
+                      name:
+                        type: string
+                        description: The updated name of the permission.
+        '400':
+          description: Name is required.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  errorMessage:
+                    type: string
+                    example: Name is required.
+        '404':
+          description: Permission not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  errorMessage:
+                    type: string
+                    example: Permission not found.
+    delete:
+      summary: Delete a permission
+      security:
+        - bearerAuth: []
+      tags:
+        - Permissions
+      description: Deletes a permission by ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the permission to delete.
+      responses:
+        '200':
+          description: Successfully deleted the permission.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    description: Indicates if the operation was successful.
+                    example: true
+                  message:
+                    type: string
+                    description: Confirmation message.
+                    example: Permission deleted successfully!
+        '404':
+          description: Permission not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  errorMessage:
+                    type: string
+                    example: Permission not found.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

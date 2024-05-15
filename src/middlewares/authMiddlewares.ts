@@ -55,7 +55,8 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
   }
 };
 // Middleware to check user roles
-export const checkUserRoles = (requiredRole: string) => {
+type userRole = 'admin' | 'buyer' | 'seller';
+export const checkUserRoles = (requiredRole: userRole) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const user = (await req.user) as any;
     const userRole = user.Role.name;

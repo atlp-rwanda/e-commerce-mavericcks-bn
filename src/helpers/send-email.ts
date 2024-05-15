@@ -241,6 +241,26 @@ export const sendEmail = async (type: string, data: IData) => {
         mailOptions.subject = 'Product added successfully';
         mailOptions.html = mailGenerator.generate(email);
         break;
+
+      case 'password_prompt':
+        email = {
+          body: {
+            name: data.name,
+            intro: 'Your password needs to be updated to ensure account security.',
+            action: {
+              instructions: 'Please click the button below to update your password:',
+              button: {
+                color: '#22BC66',
+                text: 'Update Password',
+                link: 'https://e-commerce-mavericcks-bn-staging-istf.onrender.com/',
+              },
+            },
+            outro: 'If you did not request this action, please ignore this email.',
+          },
+        };
+        mailOptions.subject = 'Password Update Required';
+        mailOptions.html = mailGenerator.generate(email);
+        break;
     }
     const info = await transporter.sendMail(mailOptions);
     logger.info('Send Mailer', info);

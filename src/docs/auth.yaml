@@ -166,3 +166,95 @@ tags:
     description: Login a user
   - name: Password Reset
     description: Endpoints for password recovery and reset functionality
+
+  /api/auth/update-password:
+    put:
+      summary: Update user password
+      description: Updates the password of the authenticated user.
+      tags:
+        - Login
+      requestBody:
+        description: Update the password of the authenticated user
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  example: old_password123!
+                newPassword:
+                  type: string
+                  example: NewPassw0rd!
+      responses:
+        '200':
+          description: Successfully updated user password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Successfully updated user password!
+        '400':
+          description: Invalid input or old password incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: The old password is incorrect!
+                  error:
+                    type: string
+                    example: Ensuring it contains at least 1 letter, 1 number, and 1 special character, minimum 8 characters
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Internal server error occurred
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UpdatePasswordRequest:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          description: The current password of the user.
+        newPassword:
+          type: string
+          description: The new password that the user wants to set.
+          example: Password@123
+    ErrorResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Error message describing what went wrong

@@ -7,9 +7,8 @@ import logger from '../logs/config';
 import { passwordCompare } from '../helpers/encrypt';
 import { verifyIfSeller } from '../middlewares/authMiddlewares';
 import { createOTPToken, saveOTPDB } from '../middlewares/otpAuthMiddleware';
-import { userToken, verifyToken } from '../helpers/token.generator';
+import { userToken } from '../helpers/token.generator';
 import { sendErrorResponse } from '../helpers/helper';
-// Additional imports
 import { sendEmail } from '../helpers/send-email';
 import { passwordEncrypt } from '../helpers/encrypt';
 
@@ -34,7 +33,26 @@ export const authenticateViaGoogle = (req: Request, res: Response, next: NextFun
     });
   })(req, res, next);
 };
+// calculate password expiration
+const calculatePasswordExpirationDate = (user: UserAttributes): Date | null => {
+  const expirationMinutes = parseInt(process.env.PASSWORD_EXPIRATION_MINUTES as string);
+  let expirationDate: Date | null = null;
 
+  if (user.lastPasswordUpdated) {
+    expirationDate = new Date(user.lastPasswordUpdated);
+  } else if (user.createdAt) {
+    expirationDate = new Date(user.createdAt);
+  }
+
+  if (expirationDate) {
+    expirationDate.setMinutes(expirationDate.getMinutes() + expirationMinutes);
+  }
+
+  return expirationDate;
+};
+const redirectToPasswordUpdate = (res: Response): void => {
+  res.redirect('/api/user/passwordUpdate');
+};
 // login function
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -74,6 +92,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Check if the password is expired
+    const expirationDate = calculatePasswordExpirationDate(user);
+    if (expirationDate && expirationDate <= new Date()) {
+      redirectToPasswordUpdate(res);
+      return;
+    }
+
     // Verify password
     const passwordValid = await passwordCompare(password, user.password);
     if (!passwordValid) {
@@ -82,7 +107,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     await verifyIfSeller(user, req, res);
-  } catch (err: any) {
+  } catch (err) {
     const message = (err as Error).message;
     logger.error(message);
     sendInternalErrorResponse(res, err);
@@ -190,5 +215,44 @@ export const resetPassword = async (req: Request, res: Response) => {
     logger.error('Error resetting password: ', error);
     sendInternalErrorResponse(res, error);
     return;
+  }
+};
+
+export const updatePassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = req.user as {
+      id: string;
+      password: string;
+    };
+
+    const match = await passwordCompare(oldPassword, user.password);
+    if (!match) {
+      return sendErrorResponse(res, 'The old password is incorrect!');
+    }
+    if (!validatePassword(newPassword)) {
+      return sendErrorResponse(
+        res,
+        'Ensuring it contains at least 1 letter, 1 number, and 1 special character, minumun 8 characters'
+      );
+    }
+    const hashedNewPassword = await passwordEncrypt(newPassword);
+
+    await User.update(
+      { password: hashedNewPassword },
+      {
+        where: {
+          id: user.id,
+        },
+      }
+    );
+
+    res.status(200).json({
+      ok: true,
+      message: 'Successfully updated user password!',
+    });
+  } catch (error) {
+    logger.error('Error updating user:', error);
+    sendInternalErrorResponse(res, error);
   }
 };

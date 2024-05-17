@@ -11,6 +11,8 @@ import sequelize from '../database/models';
 import Notification from '../database/models/notification';
 import User from '../database/models/user';
 import { sendEmail } from '../helpers/send-email';
+import { destroyImage } from '../helpers/destroyImage';
+import { extractImageId } from '../helpers/extractImageId';
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -64,6 +66,74 @@ export const createSize = async (req: Request, res: Response) => {
     res.status(201).json({
       ok: true,
       message: 'Product size added successfully',
+    });
+  } catch (error) {
+    sendInternalErrorResponse(res, error);
+  }
+};
+
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+
+    const data = {
+      name: req.body.name,
+      description: req.body.description,
+      colors: req.body.colors,
+    };
+
+    // update images
+    if (req.files) {
+      const product = await Product.findByPk(productId);
+      const foundImages = product?.images;
+
+      // delete already existing images
+      if (foundImages instanceof Array) {
+        for (let i = 0; i < foundImages.length; i++) {
+          const strImg = foundImages[i].toString();
+          const imageId = extractImageId(strImg) as string;
+          await destroyImage(imageId);
+          product!.images = [];
+        }
+      }
+
+      // update new images
+      const images: unknown = req.files;
+      const productImages = [];
+      if (images instanceof Array && images.length > 3) {
+        for (const image of images) {
+          const imageBuffer: Buffer = image.buffer;
+          const url = await uploadImage(imageBuffer);
+          productImages.push(url);
+          Product.update({ images: productImages }, { where: { id: productId } });
+        }
+      } else {
+        return res.status(400).json({
+          message: 'Product should have at least 4 images',
+        });
+      }
+    }
+    // update product
+    Product.update(data, { where: { id: productId } }).then(() => {
+      res.status(200).json({
+        ok: true,
+        message: 'Product updated successfully',
+      });
+    });
+  } catch (error) {
+    sendInternalErrorResponse(res, error);
+  }
+};
+
+// update size
+export const updateSize = async (req: Request, res: Response) => {
+  try {
+    const { sizeId } = req.params;
+    const { size, price, discount, expiryDate } = req.body as SizeAttributes;
+    await Size.update({ size, price, discount, expiryDate }, { where: { id: sizeId } });
+    res.status(200).json({
+      ok: true,
+      message: 'Product size updated successfully',
     });
   } catch (error) {
     sendInternalErrorResponse(res, error);

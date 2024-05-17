@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from 'express';
 import {
   createProduct,
@@ -7,6 +8,7 @@ import {
   getProductById,
   markProductAsAvailable,
   markProductAsUnavailable,
+  updateProduct,
 } from '../controllers/productsController';
 import multerUpload from '../helpers/multer';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
@@ -21,6 +23,13 @@ router.post(
   createProduct
 );
 
+router.put(
+  '/:productId/update-product',
+  multerUpload.array('images', 8),
+  isAuthenticated,
+  checkUserRoles('seller'),
+  updateProduct
+);
 router.post('/:productId/add-size', isAuthenticated, checkUserRoles('seller'), createSize);
 
 router.get('/', getAllProduct);

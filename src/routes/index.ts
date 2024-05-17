@@ -10,11 +10,12 @@ import wishlistRoute from './wishlistRoute';
 import notificationRoutes from './notificationRoutes';
 import { permissionRoute } from './permissionRoute';
 import { sellerRequestRouter } from './sellerRequestRoute';
+import chatRoute from './chatRoute';
 
 const router = Router();
 
+router.use('/chats', chatRoute);
 router.use('/users', userRoute);
-// Profile routes
 router.use('/profiles', profileRoutes);
 router.use('/auth', authRoute);
 router.use('/roles', roleRoute);

@@ -12,6 +12,7 @@ import expressWinston from 'express-winston';
 import databaseConnection from './database';
 import { schedulePasswordUpdatePrompts } from './scheduler';
 import scheduledTasks from './config/cornJobs';
+import { socketSetUp } from './chatSetup';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(cors());
 app.use(passport.initialize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 const swaggerSpec = swaggerJsDoc(options);
 app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
@@ -54,6 +56,8 @@ databaseConnection();
 scheduledTasks();
 
 const PORT = process.env.PORT ?? 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT}`);
 });
+
+socketSetUp(server);

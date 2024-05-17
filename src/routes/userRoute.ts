@@ -14,8 +14,6 @@ import {
 } from '../controllers/userController';
 import multerUpload from '../helpers/multer';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
-import { isCheckedOTP } from '../middlewares/otpAuthMiddleware';
-import { verifyOTP } from '../controllers/authController';
 
 const router = Router();
 
@@ -23,7 +21,7 @@ router.post('/signup', signupUser);
 router.get('/:page?', isAuthenticated, getAllUser);
 router.get('/user/:id', isAuthenticated, getOneUser);
 router.delete('/:id', isAuthenticated, checkUserRoles('admin'), deleteUser);
-router.patch('/edit/:id', isAuthenticated, multerUpload.single('profileImage'), editUser); // remove id param
+router.patch('/edit/:id', isAuthenticated, multerUpload.single('profileImage'), editUser);
 router.put('/role/:userId', isAuthenticated, checkUserRoles('admin'), editUserRole);
 router.get('/:token/verify-email', userVerify);
 router.post('/resend-verify', resendVerifyLink);

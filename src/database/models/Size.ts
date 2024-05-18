@@ -2,7 +2,7 @@ import { Model, Optional, DataTypes, UUIDV4 } from 'sequelize';
 import sequelize from './index';
 
 export interface SizeAttributes {
-  id: number;
+  id?: number;
   size?: string;
   price: number;
   quantity?: number;
@@ -10,11 +10,11 @@ export interface SizeAttributes {
   expiryDate?: Date;
   productId: string;
   available?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface SizeCreationAttributes extends Optional<SizeAttributes, 'id'> {}
-
-export class Size extends Model<SizeAttributes, SizeCreationAttributes> implements SizeAttributes {
+export class Size extends Model<SizeAttributes> implements SizeAttributes {
   public id!: number;
   public size!: string;
   public price!: number;

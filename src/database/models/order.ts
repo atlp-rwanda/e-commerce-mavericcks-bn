@@ -43,7 +43,7 @@ Order.init(
       primaryKey: true,
     },
     status: {
-      type: DataTypes.ENUM('pending', 'delivered', 'cancelled'),
+      type: DataTypes.ENUM('pending', 'delivered', 'cancelled', 'paid'),
       defaultValue: 'pending',
     },
     shippingAddress1: {

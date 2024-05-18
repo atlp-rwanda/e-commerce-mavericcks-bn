@@ -23,7 +23,7 @@ export const createProduct = async (req: Request, res: Response) => {
   try {
     const { name, description, colors } = req.body as ProductAttributes;
     const { categoryId } = req.params;
-    const seller = (await req.user) as any;
+    const seller = (await req.user) as User;
     const sellerId = seller.id;
 
     // when products exists
@@ -68,7 +68,7 @@ export const createSize = async (req: Request, res: Response) => {
     const { productId } = req.params;
     const { size, price, discount, expiryDate, quantity } = req.body as SizeAttributes;
 
-    const result = await Size.create({ size, price, discount, expiryDate, productId, quantity });
+    await Size.create({ size, price, discount, expiryDate, productId, quantity });
     res.status(201).json({
       ok: true,
       message: 'Product size added successfully',

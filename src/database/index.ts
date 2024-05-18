@@ -6,8 +6,8 @@ const databaseConnection = async () => {
   try {
     await sequelize.authenticate();
     logger.info('connected to the database');
-  } catch (error: any) {
-    logger.error(error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) logger.error(error.message);
   }
 };
 

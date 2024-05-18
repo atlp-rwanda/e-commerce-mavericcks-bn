@@ -4,9 +4,7 @@ paths:
       summary: Authenticate with Google
       tags:
         - Login
-      description: |
-        Initiates the authentication process with Google OAuth 2.0.
-        Users will be redirected to Google's authentication page to log in.
+      description: Initiates the authentication process with Google OAuth 2.0. Users will be redirected to Google's authentication page to log in.
       responses:
         '302':
           description: Redirects the user to Google's authentication page

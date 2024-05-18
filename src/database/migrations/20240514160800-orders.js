@@ -10,7 +10,7 @@ module.exports = {
         primaryKey: true,
       },
       status: {
-        type: Sequelize.ENUM('pending', 'delivered', 'cancelled'),
+        type: Sequelize.ENUM('pending', 'delivered', 'cancelled', 'paid'),
         defaultValue: 'pending',
       },
       shippingAddress1: {

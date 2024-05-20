@@ -7,9 +7,8 @@ import logger from '../logs/config';
 import { passwordCompare } from '../helpers/encrypt';
 import { verifyIfSeller } from '../middlewares/authMiddlewares';
 import { createOTPToken, saveOTPDB } from '../middlewares/otpAuthMiddleware';
-import { userToken, verifyToken } from '../helpers/token.generator';
+import { userToken } from '../helpers/token.generator';
 import { sendErrorResponse } from '../helpers/helper';
-// Additional imports
 import { sendEmail } from '../helpers/send-email';
 import { passwordEncrypt } from '../helpers/encrypt';
 
@@ -216,5 +215,44 @@ export const resetPassword = async (req: Request, res: Response) => {
     logger.error('Error resetting password: ', error);
     sendInternalErrorResponse(res, error);
     return;
+  }
+};
+
+export const updatePassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = req.user as {
+      id: string;
+      password: string;
+    };
+
+    const match = await passwordCompare(oldPassword, user.password);
+    if (!match) {
+      return sendErrorResponse(res, 'The old password is incorrect!');
+    }
+    if (!validatePassword(newPassword)) {
+      return sendErrorResponse(
+        res,
+        'Ensuring it contains at least 1 letter, 1 number, and 1 special character, minumun 8 characters'
+      );
+    }
+    const hashedNewPassword = await passwordEncrypt(newPassword);
+
+    await User.update(
+      { password: hashedNewPassword },
+      {
+        where: {
+          id: user.id,
+        },
+      }
+    );
+
+    res.status(200).json({
+      ok: true,
+      message: 'Successfully updated user password!',
+    });
+  } catch (error) {
+    logger.error('Error updating user:', error);
+    sendInternalErrorResponse(res, error);
   }
 };

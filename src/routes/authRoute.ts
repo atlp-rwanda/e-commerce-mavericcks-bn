@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { authenticateViaGoogle, verifyOTP } from '../controllers/authController';
+import { authenticateViaGoogle, verifyOTP, updatePassword } from '../controllers/authController';
 import { login } from '../controllers/authController';
 import { isCheckedOTP } from '../middlewares/otpAuthMiddleware';
 import { forgotPassword, resetPassword } from '../controllers/authController';
@@ -12,6 +12,7 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback', authenticateViaGoogle);
 router.post('/login', login);
 router.post('/:token/otp', isCheckedOTP, verifyOTP);
+router.put('/update-password', isAuthenticated, updatePassword);
 
 // Route to request password reset
 router.post('/forgot-password', forgotPassword);

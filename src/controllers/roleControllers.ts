@@ -27,6 +27,7 @@ const createRole = async (req: Request, res: Response): Promise<void> => {
       await (role as any).addPermissions(permissions, { transaction });
       await transaction.commit();
       res.status(201).json({ ok: true, message: 'Role created successfully' });
+      return;
     } catch (err) {
       logger.error('Error creating role');
       await transaction.rollback();

@@ -17,3 +17,14 @@ export const createCategory = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to create category' });
   }
 };
+export const getAllCategories = async (req: Request, res: Response) => {
+  try {
+    const categories = await Category.findAll();
+    res.status(200).json({ ok: true, data: categories });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error(error.message);
+    }
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+};

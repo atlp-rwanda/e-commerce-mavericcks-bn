@@ -21,11 +21,11 @@ export const createSellerRequest = async (req: Request, res: Response): Promise<
       return;
     }
     if (!req.files || +req.files.length < 6) {
-      res.status(400).json({ message: 'Please upload  all required documents(6)' });
+      res.status(400).json({ ok: false, message: 'Please upload  all required documents(6)' });
       return;
     }
     if (req.body.agreement !== 'true') {
-      res.status(400).json({ message: 'Please agree to the terms and conditions' });
+      res.status(400).json({ ok: false, message: 'Please agree to the terms and conditions' });
       return;
     }
     const documents = await fileUploadService(req);

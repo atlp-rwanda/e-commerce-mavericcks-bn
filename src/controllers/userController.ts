@@ -8,6 +8,10 @@ import Role from '../database/models/role';
 import { sendEmail } from '../helpers/send-email';
 import { sendInternalErrorResponse, validateEmail, validateFields, validatePassword } from '../validations';
 import { passwordEncrypt } from '../helpers/encrypt';
+import getDefaultRole from '../helpers/defaultRoleGenerator';
+import VendorRequest from '../database/models/sellerRequest';
+import sequelize from '../database/models/index';
+import { Transaction } from 'sequelize';
 
 // Function for user signup
 export const signupUser = async (req: Request, res: Response) => {
@@ -50,6 +54,7 @@ export const signupUser = async (req: Request, res: Response) => {
       password: hashPassword,
       gender,
       phoneNumber,
+      RoleId: await getDefaultRole(),
     });
 
     const createdUser = newUser.dataValues;
@@ -143,6 +148,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 // Function to edit user role
 export const editUserRole = async (req: Request, res: Response) => {
+  const transaction: Transaction = await sequelize.transaction();
   try {
     const { userId } = req.params;
     const { roleId } = req.body;
@@ -150,14 +156,21 @@ export const editUserRole = async (req: Request, res: Response) => {
       res.status(400).json({ ok: false, error: 'roleId is required' });
       return;
     }
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, { transaction });
 
     if (!user) {
       logger.error('Error User Not Found');
       res.status(404).json({ ok: false, error: 'User not found' });
+      return;
     }
-
-    await user?.update({ RoleId: roleId });
+    const requestedUser = await VendorRequest.findOne({ where: { vendorId: userId }, transaction });
+    if (!requestedUser) {
+      logger.error('Error User request Not Found');
+      res.status(404).json({ ok: false, error: 'User request not found' });
+      return;
+    }
+    await user.update({ RoleId: roleId });
+    await requestedUser.update({ status: 'approved' });
 
     res.status(200).json({ ok: true, message: 'Role assigned successfully.' });
   } catch (error) {

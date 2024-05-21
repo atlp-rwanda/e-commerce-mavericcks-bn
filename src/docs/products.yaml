@@ -204,6 +204,265 @@ paths:
                     type: string
                     example: Something went wrong when creating the product
 
+/api/{productId}/review:
+  post:
+      summary: Provide a review to a product
+      description: Allows a Buyer to provide a review (feedback and rating) to a product that they have bought and received.
+      tags:
+        - Reviews(Ratings + Feedbacks)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the product to be reviewed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  description: Rating for the product
+                  example: 5
+                feedback:
+                  type: string
+                  description: Feedback for the product
+                  example: "Great product, very satisfied!"
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  description: Rating for the product
+                  example: 5
+                feedback:
+                  type: string
+                  description: Feedback for the product
+                  example: "Great product, very satisfied!"
+                feedbackImage:
+                  type: string
+                  format: binary
+                  description: Optional image for the feedback
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Thank you for providing feedback!"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "You have already reviewed this product"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unable to provide review due to an internal error."
+/api/products/{productId}/review/{reviewId}:
+    delete:
+      summary: Delete a review
+      description: Deletes a review if the requester is the owner of the review.
+      tags:
+        - Reviews(Ratings + Feedbacks)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product associated with the review
+        - in: path
+          name: reviewId
+          required: true
+          schema:
+            type: string
+          description: ID of the review to be deleted
+      responses:
+        '200':
+          description: Review deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Review deleted successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Only owner can delete a review
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Review not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error deleting review
+/api/products/{productId}/reviews:
+    get:
+      summary: Get reviews for a product
+      description: Retrieves reviews for a specific product, including user information.
+      tags:
+        - Reviews(Ratings + Feedbacks)
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to fetch reviews for
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Reviews retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      product:
+                        $ref: '#/components/schemas/Product'
+                      reviews:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Review'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Product not found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unable to fetch reviews for the product
+/api/products/{productId}/review/statistics:
+    get:
+      summary: Get review statistics for a product
+      description: Retrieves statistics about the reviews for a specific product, such as the average rating.
+      tags:
+        - Reviews(Ratings + Feedbacks)
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to fetch statistics for
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Review statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Review statistics retrieved successfully
+                  averageRating:
+                    type: number
+                    example: 4.5
+        '404':
+          description: No reviews found for the product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: No reviews found for this product.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unable to fetch review statistics
 /api/products/{sizeId}/available:
   put:
     security:
@@ -255,7 +514,6 @@ paths:
               example: This size is not available
       500:
         description: Internal server error
-
 /api/products/{sizeId}/unavailable:
   put:
     security:

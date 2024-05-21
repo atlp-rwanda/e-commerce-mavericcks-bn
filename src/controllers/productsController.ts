@@ -13,6 +13,11 @@ import User from '../database/models/user';
 import { sendEmail } from '../helpers/send-email';
 import { destroyImage } from '../helpers/destroyImage';
 import { extractImageId } from '../helpers/extractImageId';
+// import Review, { ReviewAttributes } from '../database/models/Review';
+import Review, { ReviewAttributes } from '../database/models/Review';
+import Cart from '../database/models/cart';
+import Order from '../database/models/order';
+import OrderItems from '../database/models/orderItems';
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
@@ -355,3 +360,155 @@ Product.afterCreate(async product => {
   }
   sendEmail('added_product_notification', { email: user.email, name: user.firstName });
 });
+
+// Review a product (feedback + rating)
+export const provideReviewToProduct = async (req: Request, res: Response) => {
+  try {
+    const { rating, feedback } = req.body as ReviewAttributes;
+    const { productId } = req.params;
+    const buyer = req.user as any;
+    const userId = buyer.id;
+
+    // Check if the order with the given userId and status 'delivered' contains the productId
+    const orderItem = await OrderItems.findOne({
+      where: { productId },
+      include: [
+        {
+          model: Order,
+          as: 'orders',
+          where: { userId, status: 'delivered' },
+        },
+      ],
+    });
+
+    // No matching order or orderitem found
+    if (!orderItem) {
+      return res.status(400).json({
+        ok: false,
+        message: 'No delivered order found for this product',
+      });
+    }
+
+    // check if buyer has review
+    const existingReview = await Review.findOne({ where: { userId, productId } });
+    if (existingReview) {
+      return res.status(400).json({
+        ok: false,
+        message: 'You have already reviewed this product',
+      });
+    }
+
+    // Handle image if provided
+    let feedbbackImage: string | null = null;
+    const image: any = req.file;
+    if (image) {
+      const imageBuffer: Buffer = image.buffer;
+      feedbbackImage = await uploadImage(imageBuffer);
+    }
+
+    // Create review
+    await Review.create({ userId, feedback, rating, productId, feedbbackImage });
+
+    res.status(201).json({
+      ok: true,
+      message: 'Thank you for providing feedback!',
+    });
+  } catch (error) {
+    logger.error('Unable to provide review:', error);
+    sendInternalErrorResponse(res, error);
+  }
+};
+
+// delete a review
+export const deleteReview = async (req: Request, res: Response) => {
+  try {
+    const { reviewId } = req.params;
+    const buyer = req.user as any;
+    const userId = buyer.id;
+
+    // Check if the review exists
+    const review = await Review.findByPk(reviewId);
+    if (!review) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Review not found',
+      });
+    }
+
+    // verify owner
+    if (review.userId !== userId) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Only owner can delete a review',
+      });
+    }
+
+    // Delete the review
+    await review.destroy();
+
+    res.status(200).json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    logger.error('Error deleting review:', error);
+    sendInternalErrorResponse(res, error);
+  }
+};
+
+// calculate rating statistics
+export const calculateAverageRating = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+
+    // Find all reviews for the product
+    const reviews = await Review.findAll({ where: { productId } });
+
+    if (reviews.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        message: 'No reviews found for this product.',
+      });
+    }
+
+    // Calculate the total sum of ratings
+    const totalRatings = reviews.reduce((sum, review) => sum + review.rating, 0);
+
+    // Calculate the average rating
+    const averageRating = totalRatings / reviews.length;
+
+    res.status(200).json({
+      ok: true,
+      message: 'Average rating is as follow',
+      avarage: averageRating,
+    });
+  } catch (error) {
+    logger.error('Unable to calculate average rating:', error);
+    sendInternalErrorResponse(res, error);
+  }
+};
+
+// get product review ---- Buyer
+export const getProductReviewsById = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findByPk(productId, {
+      include: [
+        { model: Size, as: 'sizes' },
+        { model: Review, as: 'reviews', include: [{ model: User, as: 'user', attributes: ['photoUrl', 'firstName'] }] },
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Product not found',
+      });
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Product retrieved successfully',
+      data: product,
+    });
+  } catch (error) {
+    sendInternalErrorResponse(res, error);
+  }
+};

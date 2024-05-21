@@ -8,17 +8,19 @@ import User from '../database/models/user';
 import { Product } from '../database/models/Product';
 import { Size } from '../database/models/Size';
 import Cart from '../database/models/cart';
+import OrderItems from '../database/models/orderItems';
 
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
-  const transaction: Transaction = await sequelize.transaction();
   const { id: userId } = req.user as User;
+
   try {
-    const { shippingAddress1, shippingAddress2, cartId, country, city, phone, zipCode } = req.body;
-    const missingFields = validateFields(req, ['cartId', 'shippingAddress1', 'city', 'country', 'phone']);
+    const { shippingAddress1, shippingAddress2, country, city, phone, zipCode } = req.body;
+    const missingFields = validateFields(req, ['shippingAddress1', 'city', 'country', 'phone']);
     if (missingFields.length !== 0) {
-      res.status(400).json({ ok: false, message: `the following fields are required: ${missingFields.join(',')}` });
+      res.status(400).json({ ok: false, message: `The following fields are required: ${missingFields.join(',')}` });
       return;
     }
+
     const cart = await Cart.findOne({
       where: { userId },
       include: [
@@ -29,19 +31,21 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
           include: [{ model: Size, as: 'sizes', attributes: ['price'] }],
         },
       ],
-      transaction,
     });
 
     if (!cart) {
       res.status(404).json({ ok: false, message: 'No cart found for this user!' });
       return;
     }
-    const [orderItems] = await sequelize.query('SELECT "productId", quantity from "CartsProducts" where "cartId" = ?', {
-      replacements: [cart.id],
-      transaction,
-    });
 
-    const sizes = Promise.all(
+    const [orderItems]: any = await sequelize.query(
+      'SELECT "productId", quantity FROM "CartsProducts" WHERE "cartId" = ?',
+      {
+        replacements: [cart.id],
+      }
+    );
+
+    const sizes = await Promise.all(
       orderItems.map(async (item: any) => {
         const product = await Product.findOne({
           where: { id: item.productId },
@@ -50,49 +54,48 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
             as: 'sizes',
             attributes: ['price'],
           },
-          transaction,
         });
 
         if (!product) {
           throw new Error(`Product with id ${item.productId} not found`);
         }
 
-        // Calculate the total for each size
-        const totals = (product as any).dataValues.sizes.map((size: Size) => {
-          const total = size.price * item.quantity;
-          return total;
-        });
+        const size = product.sizes[0];
+        const totalSum = size.price * item.quantity;
 
-        // Sum up all totals for the current product
-        const totalSum = totals.reduce((acc: number, curr: number) => acc + curr, 0);
-
-        return totalSum;
+        return { productId: item.productId, quantity: item.quantity, price: size.price, totalSum };
       })
     );
 
-    const totalPrice = (await sizes).reduce((prev: number, cur: number) => prev + cur) as number;
-    const order = await Order.create(
-      {
-        phone,
-        shippingAddress1,
-        shippingAddress2,
-        country,
-        city,
-        zipCode,
-        cartId,
-        userId,
-        totalPrice,
-      },
-      { transaction }
+    const totalPrice = sizes.reduce((prev: number, cur: any) => prev + cur.totalSum, 0);
+
+    const order = await Order.create({
+      phone,
+      shippingAddress1,
+      shippingAddress2,
+      country,
+      city,
+      zipCode,
+      userId,
+      totalPrice,
+    });
+
+    await Promise.all(
+      sizes.map(async (item: any) =>
+        OrderItems.create({
+          orderId: order.id,
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })
+      )
     );
-    await transaction.commit();
+
     res.status(201).json({ ok: true, message: 'Order created successfully', order });
   } catch (error) {
-    logger.error('error creating order');
+    logger.error('Error creating order');
     logger.error(error);
-    await transaction.rollback();
     sendInternalErrorResponse(res, error);
-    return;
   }
 };
 export const getAllOrders = async (req: Request, res: Response): Promise<void> => {

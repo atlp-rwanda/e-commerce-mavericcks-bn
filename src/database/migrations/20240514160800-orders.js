@@ -9,14 +9,6 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      cartId: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'Carts',
-          key: 'id',
-        },
-      },
       status: {
         type: Sequelize.ENUM('pending', 'delivered', 'cancelled'),
         defaultValue: 'pending',

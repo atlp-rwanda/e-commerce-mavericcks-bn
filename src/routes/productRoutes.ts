@@ -10,6 +10,10 @@ import {
   markProductAsUnavailable,
   updateProduct,
   getAllSizes,
+  provideReviewToProduct,
+  calculateAverageRating,
+  deleteReview,
+  getProductReviewsById,
 } from '../controllers/productsController';
 import multerUpload from '../helpers/multer';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
@@ -39,5 +43,9 @@ router.get('/:productId', getProductById);
 router.delete('/:id', isAuthenticated, checkUserRoles('seller'), deleteProductById);
 router.put('/:sizeId/available', isAuthenticated, checkUserRoles('seller'), markProductAsAvailable);
 router.put('/:sizeId/unavailable', isAuthenticated, checkUserRoles('seller'), markProductAsUnavailable);
+router.post('/:productId/review/', isAuthenticated, multerUpload.single('feedbackImage'), provideReviewToProduct);
+router.delete('/:productId/review/:reviewId', isAuthenticated, deleteReview);
+router.get('/:productId/review/statistics', isAuthenticated, calculateAverageRating);
+router.get('/:productId/reviews', getProductReviewsById);
 
 export default router;

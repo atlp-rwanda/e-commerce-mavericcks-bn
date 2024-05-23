@@ -31,7 +31,7 @@ passport.use(
         return done(null, existingUser);
       }
 
-      // If no existing user is found, create a new user
+      // If no existing user is found, create a new user, assigning a default role
       const newUserAttributes: Partial<UserAttributes> = {
         firstName: profile.name?.givenName,
         lastName: profile.name?.familyName || '',

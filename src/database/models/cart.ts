@@ -12,6 +12,7 @@ export interface CartCreationAttributes extends Optional<CartAttributes, 'id'> {
 export class Cart extends Model<CartAttributes, CartCreationAttributes> implements CartAttributes {
   public id!: string;
   public userId!: string;
+  map: any;
 }
 Cart.init(
   {

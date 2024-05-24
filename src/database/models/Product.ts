@@ -28,6 +28,7 @@ export class Product extends Model<ProductAttributes> implements ProductAttribut
   public colors!: string[];
   public readonly createdAt!: Date | undefined;
   public readonly updatedAt!: Date | undefined;
+  sizes?: any;
 }
 
 Product.init(

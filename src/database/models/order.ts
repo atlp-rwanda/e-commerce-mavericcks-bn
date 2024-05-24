@@ -1,12 +1,10 @@
 import { DataTypes, Model, Optional, UUIDV4 } from 'sequelize';
 import sequelize from './index';
 import User from './user';
-import { Product } from './Product';
-import Cart from './cart';
+// import Cart from './cart';
 
 interface OrderAttributes {
   id: string;
-  cartId: string;
   status?: string; // pending delivered cancelled
   createdAt?: Date;
   updatedAt?: Date;
@@ -24,12 +22,11 @@ interface OrderCreationAttributes extends Optional<OrderAttributes, 'id'> {}
 
 class Order extends Model<OrderAttributes, OrderCreationAttributes> implements OrderAttributes {
   public id!: string;
-  public cartId!: string;
   public status!: string; // pending delivered cancelled
   public createdAt!: Date;
   public updatedAt!: Date;
   public shippingAddress1!: string;
-  public shippingAddress2!: string;
+  public shippingAddress2?: string;
   public phone!: string;
   public city!: string;
   public country!: string;
@@ -44,14 +41,6 @@ Order.init(
       type: DataTypes.UUID,
       defaultValue: UUIDV4,
       primaryKey: true,
-    },
-    cartId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: 'Carts',
-        key: 'id',
-      },
     },
     status: {
       type: DataTypes.ENUM('pending', 'delivered', 'cancelled'),
@@ -113,6 +102,7 @@ Order.init(
 );
 Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 User.hasMany(Order, { foreignKey: 'userId' });
-Cart.hasMany(Order, { foreignKey: 'cartId', as: 'orders' });
-Order.belongsTo(Cart, { foreignKey: 'cartId', as: 'Carts' });
+// Cart.hasMany(Order, { foreignKey: 'cartId', as: 'orders' });
+// Order.belongsTo(Cart, { foreignKey: 'cartId', as: 'Carts' });
+
 export default Order;

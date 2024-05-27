@@ -13,9 +13,7 @@ import User from '../database/models/user';
 import { sendEmail } from '../helpers/send-email';
 import { destroyImage } from '../helpers/destroyImage';
 import { extractImageId } from '../helpers/extractImageId';
-// import Review, { ReviewAttributes } from '../database/models/Review';
 import Review, { ReviewAttributes } from '../database/models/Review';
-import Cart from '../database/models/cart';
 import Order from '../database/models/order';
 import OrderItems from '../database/models/orderItems';
 

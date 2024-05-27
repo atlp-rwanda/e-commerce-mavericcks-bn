@@ -2,11 +2,13 @@ import { DataTypes, Model, Optional, UUIDV4 } from 'sequelize';
 import sequelize from './index';
 import Order from './order';
 import { Product } from './Product';
+import { Size } from './Size';
 
 interface OrderItemsAttributes {
   id: string;
   orderId: string;
   productId: string;
+  sizeId: string;
   quantity: number;
   price: number;
   createdAt?: Date;
@@ -19,6 +21,7 @@ class OrderItems extends Model<OrderItemsAttributes, OrderItemCreationAttributes
   public id!: string;
   public orderId!: string;
   public productId!: string;
+  public sizeId!: string;
   public quantity!: number;
   public price!: number;
   public readonly createdAt!: Date;
@@ -52,6 +55,16 @@ OrderItems.init(
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
     },
+    sizeId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'sizes',
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    },
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -80,6 +93,7 @@ OrderItems.init(
 
 OrderItems.belongsTo(Order, { foreignKey: 'orderId', as: 'orders' });
 OrderItems.belongsTo(Product, { foreignKey: 'productId', as: 'products' });
+OrderItems.belongsTo(Size, { foreignKey: 'sizeId', as: 'sizes' });
 
 Order.hasMany(OrderItems, { foreignKey: 'orderId', as: 'orderItems' });
 Product.hasMany(OrderItems, { foreignKey: 'productId', as: 'orderItems' });

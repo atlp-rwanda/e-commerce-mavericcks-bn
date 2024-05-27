@@ -39,7 +39,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     }
 
     const [orderItems]: any = await sequelize.query(
-      'SELECT "productId", quantity FROM "CartsProducts" WHERE "cartId" = ?',
+      'SELECT "productId", "sizeId", quantity FROM "CartsProducts" WHERE "cartId" = ?',
       {
         replacements: [cart.id],
       }
@@ -47,27 +47,32 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
     const sizes = await Promise.all(
       orderItems.map(async (item: any) => {
-        const product = await Product.findOne({
-          where: { id: item.productId },
-          include: {
-            model: Size,
-            as: 'sizes',
-            attributes: ['price'],
-          },
+        const productSize = await Size.findOne({
+          where: { id: item.sizeId },
+          attributes: ['id', 'price', 'discount'],
         });
 
-        if (!product) {
-          throw new Error(`Product with id ${item.productId} not found`);
+        if (!productSize) {
+          throw new Error(`Size with id ${item.sizeId} not found`);
         }
 
-        const size = product.sizes[0];
-        const totalSum = size.price * item.quantity;
+        const discountDecimal = 1 - productSize.discount / 100;
+        const discountedPrice = productSize.price * discountDecimal;
+        const sizeQtyPrice = discountedPrice * item.quantity;
 
-        return { productId: item.productId, quantity: item.quantity, price: size.price, totalSum };
+        return {
+          productId: item.productId,
+          sizeId: productSize.id,
+          quantity: item.quantity,
+          price: discountedPrice,
+          sizeQtyPrice,
+        };
       })
     );
 
-    const totalPrice = sizes.reduce((prev: number, cur: any) => prev + cur.totalSum, 0);
+    // combine all products sizes retrieved by flat()
+    const combinedproductsAndSizes = sizes.flat();
+    const totalPrice = combinedproductsAndSizes.reduce((prev: number, curr: any) => prev + curr.sizeQtyPrice, 0);
 
     const order = await Order.create({
       phone,
@@ -81,10 +86,11 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     });
 
     await Promise.all(
-      sizes.map(async (item: any) =>
+      combinedproductsAndSizes.map(async (item: any) =>
         OrderItems.create({
           orderId: order.id,
           productId: item.productId,
+          sizeId: item.sizeId,
           quantity: item.quantity,
           price: item.price,
         })

@@ -174,6 +174,7 @@ export const editUserRole = async (req: Request, res: Response) => {
 
     res.status(200).json({ ok: true, message: 'Role assigned successfully.' });
   } catch (error) {
+    await transaction.rollback();
     logger.error('Error Edit User Role: ', error);
     sendInternalErrorResponse(res, error);
   }

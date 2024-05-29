@@ -139,17 +139,6 @@ User.init(
     sequelize: sequelize,
     timestamps: true,
     modelName: 'User',
-    hooks: {
-      beforeCreate: async (user: User) => {
-        try {
-          const defaultRole = await getDefaultRole();
-          user.RoleId = defaultRole;
-        } catch (error) {
-          logger.error('Error setting default role:', error);
-          throw error;
-        }
-      },
-    },
   }
 );
 

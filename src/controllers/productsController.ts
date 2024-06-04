@@ -260,7 +260,7 @@ export const getAllProduct = async (req: Request, res: Response) => {
       );
       return {
         ...product.toJSON(),
-        Sizes: validSizes,
+        // Sizes: validSizes,
       };
     });
 

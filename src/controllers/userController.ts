@@ -169,6 +169,8 @@ export const editUserRole = async (req: Request, res: Response) => {
       res.status(404).json({ ok: false, error: 'User request not found' });
       return;
     }
+    const role = await Role.findByPk(roleId);
+    if (!role) return res.status(404).json({ ok: false, message: `There is no Role with this id: ${roleId}` });
     await user.update({ RoleId: roleId });
     await requestedUser.update({ status: 'approved' });
 

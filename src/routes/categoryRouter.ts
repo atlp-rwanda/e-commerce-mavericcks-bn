@@ -8,4 +8,4 @@ export const categoryRouter = express.Router();
 categoryRouter
   .route('/')
   .post(isAuthenticated, checkUserRoles('admin'), createCategory)
-  .get(isAuthenticated, checkUserRoles('admin'), getAllCategories);
+  .get(isAuthenticated, checkUserRoles('seller'), getAllCategories);

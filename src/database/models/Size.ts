@@ -1,6 +1,5 @@
 import { Model, Optional, DataTypes, UUIDV4 } from 'sequelize';
 import sequelize from './index';
-
 export interface SizeAttributes {
   id: number;
   size?: string;
@@ -31,7 +30,6 @@ Size.init(
       type: DataTypes.UUID,
       defaultValue: UUIDV4,
       primaryKey: true,
-      autoIncrement: true,
     },
     size: {
       type: DataTypes.STRING,

@@ -13,6 +13,7 @@ import databaseConnection from './database';
 import { schedulePasswordUpdatePrompts } from './scheduler';
 import scheduledTasks from './config/cornJobs';
 import { socketSetUp } from './chatSetup';
+import { IncomingMessage } from 'http';
 
 dotenv.config();
 
@@ -20,7 +21,13 @@ export const app: Application = express();
 
 app.use(cors());
 app.use(passport.initialize());
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      (req as IncomingMessage & { rawBody: Buffer | string }).rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 const swaggerSpec = swaggerJsDoc(options);

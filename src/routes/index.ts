@@ -15,6 +15,7 @@ import { sellerRequestRouter } from './sellerRequestRoute';
 import chatRoute from './chatRoute';
 
 import orderRouter from './orderRoute';
+import { paymentRouter } from './paymentRoutes';
 const router = Router();
 
 router.use('/chats', chatRoute);
@@ -29,6 +30,7 @@ router.use('/wishlist', wishlistRoute);
 router.use('/notifications', notificationRoutes);
 router.use('/permissions', permissionRoute);
 router.use('/vendor-requests', sellerRequestRouter);
+router.use('/payments', paymentRouter);
 
 router.use('/orders', orderRouter);
 export default router;

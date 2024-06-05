@@ -2,7 +2,7 @@ import { Model, DataTypes } from 'sequelize';
 import sequelize from './index';
 import { UUIDV4 } from 'sequelize';
 import { Category } from './Category';
-import { Size } from './Size';
+import { Size, SizeAttributes } from './Size';
 import User from './user';
 
 export interface ProductAttributes {
@@ -13,6 +13,7 @@ export interface ProductAttributes {
   images: string[];
   colors?: string[];
   categoryId: string;
+  sizes?: any;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -25,9 +26,9 @@ export class Product extends Model<ProductAttributes> implements ProductAttribut
   public categoryId!: string;
   public images!: string[];
   public colors!: string[];
+  public sizes!: any;
   public readonly createdAt!: Date | undefined;
   public readonly updatedAt!: Date | undefined;
-  sizes?: any;
 }
 
 Product.init(

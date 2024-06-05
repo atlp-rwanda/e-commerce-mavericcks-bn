@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  title: Payment API
+  version: 1.0.0
+  description: API for handling payments
+tags:
+  - name: Payment
+    description: API for handling payments
+
+paths:
+  /api/payments/{orderId}/charge:
+    post:
+      summary: Handle payments
+      security:
+        - bearerAuth: []
+      tags:
+        - Payment
+      description: Create a payment session and update order status and stock levels
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+          description: ID of the order where the payment is going to be made
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: '12345'
+                        description: Product ID
+                      quantity:
+                        type: integer
+                        example: 2
+                        description: Quantity of the product
+              required:
+                - items
+      responses:
+        '200':
+          description: Payment made successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  url:
+                    type: string
+                    example: 'https://checkout.stripe.com/pay/cs_test_a1b2c3d4'
+                  message:
+                    type: string
+                    example: 'Payment made successfully'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Internal Server Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

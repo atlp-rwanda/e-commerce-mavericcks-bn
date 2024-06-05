@@ -1,456 +1,453 @@
 <!doctype html>
 <html>
-
-<head>
+  <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Socket.IO chat</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
-        body {
-            margin: 0;
-            padding-bottom: 3rem;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                Helvetica, Arial, sans-serif;
-            display: flex;
+      body {
+        margin: 0;
+        padding-bottom: 3rem;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+      }
 
-        }
+      #great-container {
+        background-color: white;
+        position: relative;
+        width: 65%;
+        height: 91vh;
+        border-bottom: none;
+        padding: 0.25rem;
+        box-shadow: 0 0px 6px 0px rgba(0, 0, 0, 0.348);
+        overflow: auto;
+      }
 
-        #great-container {
-            background-color: white;
-            position: relative;
-            width: 65%;
-            height: 91vh;
-            border-bottom: none;
-            padding: 0.25rem;
-            box-shadow: 0 0px 6px 0px rgba(0, 0, 0, 0.348);
-            overflow: auto;
-        }
+      #form {
+        background: rgba(255, 255, 255, 0.717);
+        padding: 0.25rem;
+        position: fixed;
+        bottom: 0;
+        left: 159px;
+        right: 0;
+        display: flex;
+        height: 3rem;
+        box-sizing: border-box;
+        backdrop-filter: blur(10px);
+        width: 66%;
+        margin: auto;
+      }
 
-        #form {
-            background: rgba(255, 255, 255, 0.717);
-            padding: 0.25rem;
-            position: fixed;
-            bottom: 0;
-            left: 159px;
-            right: 0;
-            display: flex;
-            height: 3rem;
-            box-sizing: border-box;
-            backdrop-filter: blur(10px);
-            width: 66%;
-            margin: auto;
-        }
+      #input {
+        border: 1px solid rgb(113, 113, 113);
+        padding: 0 1.2rem;
+        flex-grow: 1;
+        margin: 0.25rem;
+      }
 
-        #input {
-            border: 1px solid rgb(113, 113, 113);
-            padding: 0 1.2rem;
-            flex-grow: 1;
-            margin: 0.25rem;
-        }
+      #input:focus {
+        outline: none;
+      }
 
-        #input:focus {
-            outline: none;
-        }
+      #form > button {
+        background: #66f0d9c4;
+        border: none;
+        padding: 0 1rem;
+        margin: 0.25rem;
+        border-radius: 3px;
+        outline: none;
+        color: #000000;
+      }
 
-        #form>button {
-            background: #66f0d9c4;
-            border: none;
-            padding: 0 1rem;
-            margin: 0.25rem;
-            border-radius: 3px;
-            outline: none;
-            color: #000000;
-        }
+      #img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+      }
 
-        #img {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-        }
+      #typingStatus {
+        color: rgb(54, 54, 253);
+      }
 
-        #typingStatus {
-            color: rgb(54, 54, 253);
-        }
+      .user {
+        width: 300px;
+      }
 
-        .user {
-            width: 300px;
-        }
+      #profile-status {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: start;
+        padding: 20px 0px;
+        border: 1px solid rgb(156, 156, 156);
+        position: fixed;
+        width: 270px;
+        height: 100%;
+        box-shadow: 0 0px 6px 0px rgba(0, 0, 0, 0.348);
+      }
 
-        #profile-status {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: start;
-            padding: 20px 0px;
-            border: 1px solid rgb(156, 156, 156);
-            position: fixed;
-            width: 270px;
-            height: 100%;
-            box-shadow: 0 0px 6px 0px rgba(0, 0, 0, 0.348);
-        }
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
 
-        #messages {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
+      #messages > li {
+        padding: 0.5rem 1rem;
+      }
 
-        #messages>li {
-            padding: 0.5rem 1rem;
-        }
+      .time,
+      .MyTime {
+        font-size: 13px;
+        max-width: 80%;
+        padding: 0.5rem 1rem;
+        white-space: nowrap;
+      }
 
-        .time,
-        .MyTime {
-            font-size: 13px;
-            max-width: 80%;
-            padding: 0.5rem 1rem;
-            white-space: nowrap;
-        }
+      .time {
+        color: blue;
+        margin-left: auto;
+      }
 
-        .time {
-            color: blue;
-            margin-left: auto;
-        }
+      .MyTime {
+        color: white;
+      }
 
-        .MyTime {
-            color: white;
-        }
+      .mine {
+        background-color: rgba(76, 128, 47, 0.752);
+        color: white;
+        width: fit-content;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        margin-left: auto;
+      }
 
-        .mine {
-            background-color: rgba(76, 128, 47, 0.752);
-            color: white;
-            width: fit-content;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 10px;
-            margin-left: auto;
-        }
+      #typingStatus {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #377b37;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+      }
 
-        #typingStatus {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #377b37;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-        }
+      .Others {
+        background-color: rgba(205, 205, 205, 0.752);
+        color: black;
+        width: fit-content;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        margin-right: auto;
+      }
 
-        .Others {
-            background-color: rgba(205, 205, 205, 0.752);
-            color: black;
-            width: fit-content;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 10px;
-            margin-right: auto;
-        }
+      #welmsg {
+        text-align: center;
+        background-color: rgba(128, 128, 128, 0.218);
+        margin: 0;
+        padding: 0;
+      }
 
-        #welmsg {
-            text-align: center;
-            background-color: rgba(128, 128, 128, 0.218);
-            margin: 0;
-            padding: 0;
-        }
+      #loginForm {
+        margin: 0 auto;
+        width: 50%;
+        border: 1px solid rgb(105, 105, 105);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-        #loginForm {
-            margin: 0 auto;
-            width: 50%;
-            border: 1px solid rgb(105, 105, 105);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+      #loginForm input {
+        width: 300px;
+        height: 40px;
+        margin-bottom: 10px;
+        background-color: rgb(232, 232, 232);
+        padding-left: 10px;
+        border: solid 1px rgb(132, 132, 132);
+        border-radius: 10px;
+      }
 
-        #loginForm input {
-            width: 300px;
-            height: 40px;
-            margin-bottom: 10px;
-            background-color: rgb(232, 232, 232);
-            padding-left: 10px;
-            border: solid 1px rgb(132, 132, 132);
-            border-radius: 10px;
-        }
-
-        #loginForm button {
-            width: 300px;
-            background-color: rgb(0, 170, 179);
-            color: white;
-            padding: 10px 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            border: none;
-            font-size: 19px;
-        }
+      #loginForm button {
+        width: 300px;
+        background-color: rgb(0, 170, 179);
+        color: white;
+        padding: 10px 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        border: none;
+        font-size: 19px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <section class="user">
-        <div id="profile-status">
-            <img src="https://cdn0.iconfinder.com/data/icons/communication-line-10/24/account_profile_user_contact_person_avatar_placeholder-512.png"
-                alt="" id="img" />
-            <div>
-                <h1 id="name"></h1>
-            </div>
+      <div id="profile-status">
+        <img
+          src="https://cdn0.iconfinder.com/data/icons/communication-line-10/24/account_profile_user_contact_person_avatar_placeholder-512.png"
+          alt=""
+          id="img"
+        />
+        <div>
+          <h1 id="name"></h1>
         </div>
+      </div>
     </section>
     <section id="great-container">
-        <div class="main-container" id="chatApp">
-
-            <ul id="messages"></ul>
-            <div id="typingStatus"></div>
-            <form id="form" action="">
-                <input id="input" placeholder="Enter a message" /><button type="submit" id="send">Send</button>
-            </form>
-            <div id="userStatus"></div>
-        </div>
-        <div>
-            <form action="" id="loginForm">
-                <input type="text" name="email" placeholder="email" id="email" />
-                <br />
-                <input type="password" name="password" placeholder="Password" id="password" />
-                <br />
-                <button type="submit" id="login">Login</button>
-            </form>
-        </div>
+      <div class="main-container" id="chatApp">
+        <ul id="messages"></ul>
+        <div id="typingStatus"></div>
+        <form id="form" action="">
+          <input id="input" placeholder="Enter a message" /><button type="submit" id="send">Send</button>
+        </form>
+        <div id="userStatus"></div>
+      </div>
+      <div>
+        <form action="" id="loginForm">
+          <input type="text" name="email" placeholder="email" id="email" />
+          <br />
+          <input type="password" name="password" placeholder="Password" id="password" />
+          <br />
+          <button type="submit" id="login">Login</button>
+        </form>
+      </div>
     </section>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
-        /**
-        * Function for logging in to the UI and establishing a connection on the socket.
-        * This function initializes the login process, fetches the authentication token, establishes
-        * a socket connection, and switches the display from the login form to the chat interface.
-        */
-        const loginToAccount = () => {
-            document.addEventListener('DOMContentLoaded', e => {
-                e.preventDefault;
-                const email = document.querySelector('#email');
-                const password = document.getElementById('password');
-                const loginButton = document.getElementById('login');
-                const chatElement = document.getElementById('chatApp');
-                const loginForm = document.getElementById('loginForm');
+      /**
+       * Function for logging in to the UI and establishing a connection on the socket.
+       * This function initializes the login process, fetches the authentication token, establishes
+       * a socket connection, and switches the display from the login form to the chat interface.
+       */
+      const loginToAccount = () => {
+        document.addEventListener('DOMContentLoaded', e => {
+          e.preventDefault;
+          const email = document.querySelector('#email');
+          const password = document.getElementById('password');
+          const loginButton = document.getElementById('login');
+          const chatElement = document.getElementById('chatApp');
+          const loginForm = document.getElementById('loginForm');
 
-                loginButton.addEventListener('click', async e => {
-                    e.preventDefault();
+          loginButton.addEventListener('click', async e => {
+            e.preventDefault();
 
-                    const response = await fetch(
-                        'http://localhost:8080/api/auth/login',
-                        {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                email: email.value,
-                                password: password.value,
-                            }),
-                        }
-                    );
-                    const result = await response.json();
-                    // If authentication is successful, store the token, establish socket connection,
-                    // and switch the display from login form to chat interface
-                    if (result.token) {
-                        const storeToken = localStorage.setItem('Token', result.token);
-                        establishSocketConnection(); // Establish socket connection
-                        loginForm.style.display = 'none';
-                        chatElement.style.display = 'block';
-                    }
-                });
+            const response = await fetch('http://localhost:8080/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: email.value,
+                password: password.value,
+              }),
             });
-        };
-        loginToAccount();
-
-        /**
-        * Function to establish a socket connection to the server.
-        * This function retrieves the authentication token from localStorage,
-        * initializes a socket connection with the token, handles various socket events,
-        * and sends/receives messages between client and server.
-        */
-        const establishSocketConnection = () => {
-            const tokenValue = localStorage.getItem("Token")
-
-            if (tokenValue) {
-                // Establishing socket connection with authentication token
-                const socket = io("http://localhost:8080", {
-                    auth: {
-                        token: tokenValue
-                    }
-                })
-                // Event listener to capture the user ID sent from the server
-                socket.on("sendUserId", getId => {
-                    localStorage.setItem("userId", getId)
-                })
-
-                // Event listener to handle the 'welcome' message from the server
-                const defaultImageUrl = 'https://cdn0.iconfinder.com/data/icons/communication-line-10/24/account_profile_user_contact_person_avatar_placeholder-512.png';
-                // Function to set user image
-                const userImage = document.getElementById('img')
-                const setUserImage = (imageUrl) => {
-                    userImage.src = imageUrl;
-                };
-                const name = document.getElementById("name")
-                socket.on("welcome", data => {
-                    setInterval(() => {
-                        name.textContent = data.firstName;
-                        // Check if the image URL exists in the data
-                        if (data.imageUrl) {
-                            setUserImage(data.imageUrl);
-                        } else {
-                            // If no image URL is provided, set a default image
-                            setUserImage(defaultImageUrl);
-                        }
-                    }, 1000);
-                });
-
-                // Function to scroll message container to the bottom
-                const scrollToBottom = () => {
-                    const messageContainer = document.getElementById('great-container');
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-                };
-
-                // Function to retrieve messages from the server and display them
-                const getMessage = async () => {
-                    const displayMessage = document.getElementById("messages")
-                    const messages = await fetch("http://localhost:8080/api/chats", {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': "application/json",
-                            Accept: "application/json",
-                            Authorization: localStorage.getItem("Token")
-                        }
-                    })
-                    const results = await messages.json()
-                    const data = results.chat
-
-                    for (let i = 0; i < data.length; i++) {
-                        const userId = localStorage.getItem('userId');
-                        const newMessage = document.createElement('p');
-                        const span = document.createElement('span');
-                        const realTime = data[i].updatedAt;
-                        const findTime = findRealTime(realTime);
-
-                        if (data[i].senderId === userId) {
-                            newMessage.innerHTML = `<strong>Me:</strong> ` + data[i].content;
-                            span.textContent = findTime;
-                            span.classList.add('MyTime');
-                            newMessage.className = 'mine';
-                            newMessage.style.textAlign = 'right';
-                        } else {
-                            newMessage.innerHTML = `<strong>${data[i].User.firstName}</strong>: ${data[i].content}`;
-                            formatTyping(data[i].User.firstName);
-                            span.textContent = findTime;
-                            span.classList.add('time');
-                            newMessage.className = 'Others';
-                            newMessage.style.textAlign = 'left';
-                        }
-                        const displayMessage = document.getElementById('messages');
-                        newMessage.appendChild(span);
-                        displayMessage.appendChild(newMessage);
-                    }
-                    // Scroll to bottom after messages are fetched
-                    scrollToBottom();
-                }
-                getMessage()
-
-                // Function to format and display real-time timestamps
-                const findRealTime = time => {
-                    // Parse the timestamp into a Date object
-                    const timestampParts = time.split(/[^\d]+/);
-                    const date = new Date(Date.UTC(
-                        parseInt(timestampParts[0]), // Year
-                        parseInt(timestampParts[1]) - 1, // Month (months are 0-indexed in Date object)
-                        parseInt(timestampParts[2]), // Day
-                        parseInt(timestampParts[3]), // Hours
-                        parseInt(timestampParts[4]), // Minutes
-                        parseInt(timestampParts[5]), // Seconds
-                        parseInt(timestampParts[6]) || 0 // Milliseconds
-                    ));
-
-                    // Calculate AM/PM and formatted hours
-                    const formattedHours = date.getHours() % 12 || 12;
-                    const amPm = date.getHours() < 12 ? 'AM' : 'PM';
-
-                    // Format the time
-                    const formattedTime = `${formattedHours}:${date.getMinutes() < 10 ? '0' : ''}${date.getMinutes()} ${amPm}`;
-                    return formattedTime;
-                };
-
-                // Event listener to handle incoming messages from the server
-                socket.on("returnMessage", data => {
-                    const newMessage = document.createElement('li');
-                    const senderName = data.senderName;
-                    const span = document.createElement('span');
-                    const findTime = findRealTime(data.date);
-
-                    if (data !== "") {
-                        if (data.socketId === socket.id) {
-                            newMessage.textContent = 'Me: ' + data.content;
-                            span.textContent = findTime;
-                            span.classList.add('MyTime');
-                            newMessage.className = 'mine';
-                            newMessage.style.textAlign = 'right';
-                        } else {
-                            newMessage.textContent = `${data.senderName}: ${data.content}`;
-                            newMessage.className = 'Others';
-                            span.textContent = findTime;
-                            span.classList.add('time');
-                            newMessage.style.textAlign = 'left';
-                        }
-                        const displayMessage = document.getElementById('messages');
-                        newMessage.appendChild(span);
-                        displayMessage.appendChild(newMessage);
-                    } else {
-                        console.error('Message content is empty');
-                    }
-                })
-
-                // Function to manage typing status and display typing indicators
-                const formatTyping = name => {
-                    const inputField = document.getElementById('input');
-                    let typingTimer;
-                    const typingTimeout = 1000;
-
-                    inputField.addEventListener('input', () => {
-                        clearTimeout(typingTimer);
-                        socket.emit('typing', true);
-                        typingTimer = setTimeout(() => {
-                            socket.emit('typing', false);
-                        }, typingTimeout);
-                    });
-
-                    // Update typing status UI
-                    const typingStatus = document.getElementById('typingStatus');
-                    socket.on('typing', isTyping => {
-                        if (isTyping) {
-                            typingStatus.style.display = 'block';
-                            typingStatus.textContent = ` ${name} is typing...`;
-                        } else {
-                            typingStatus.style.display = 'none';
-                            typingStatus.textContent = '';
-                        }
-                    });
-                };
-
-                // Event listener for submitting messages
-                document.getElementById("form").addEventListener("submit", e => {
-                    e.preventDefault()
-                    const message = document.getElementById("input")
-                    if (message.value === "") return alert("F**k no message please")
-                    socket.emit('sentMessage', {
-                        content: message.value,
-                        socketId: socket.id,
-                    });
-                    message.value = '';
-                    // Scroll to bottom after sending a message
-                    scrollToBottom();
-                })
-            } else {
-                alert("Login please")
+            const result = await response.json();
+            // If authentication is successful, store the token, establish socket connection,
+            // and switch the display from login form to chat interface
+            if (result.token) {
+              const storeToken = localStorage.setItem('Token', result.token);
+              establishSocketConnection(); // Establish socket connection
+              loginForm.style.display = 'none';
+              chatElement.style.display = 'block';
             }
+          });
+        });
+      };
+      loginToAccount();
+
+      /**
+       * Function to establish a socket connection to the server.
+       * This function retrieves the authentication token from localStorage,
+       * initializes a socket connection with the token, handles various socket events,
+       * and sends/receives messages between client and server.
+       */
+      const establishSocketConnection = () => {
+        const tokenValue = localStorage.getItem('Token');
+
+        if (tokenValue) {
+          // Establishing socket connection with authentication token
+          const socket = io('http://localhost:8080', {
+            auth: {
+              token: tokenValue,
+            },
+          });
+          // Event listener to capture the user ID sent from the server
+          socket.on('sendUserId', getId => {
+            localStorage.setItem('userId', getId);
+          });
+
+          // Event listener to handle the 'welcome' message from the server
+          const defaultImageUrl =
+            'https://cdn0.iconfinder.com/data/icons/communication-line-10/24/account_profile_user_contact_person_avatar_placeholder-512.png';
+          // Function to set user image
+          const userImage = document.getElementById('img');
+          const setUserImage = imageUrl => {
+            userImage.src = imageUrl;
+          };
+          const name = document.getElementById('name');
+          socket.on('welcome', data => {
+            setInterval(() => {
+              name.textContent = data.firstName;
+              // Check if the image URL exists in the data
+              if (data.imageUrl) {
+                setUserImage(data.imageUrl);
+              } else {
+                // If no image URL is provided, set a default image
+                setUserImage(defaultImageUrl);
+              }
+            }, 1000);
+          });
+
+          // Function to scroll message container to the bottom
+          const scrollToBottom = () => {
+            const messageContainer = document.getElementById('great-container');
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+          };
+
+          // Function to retrieve messages from the server and display them
+          const getMessage = async () => {
+            const displayMessage = document.getElementById('messages');
+            const messages = await fetch('http://localhost:8080/api/chats', {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': localStorage.getItem('Token'),
+              },
+            });
+            const results = await messages.json();
+            const data = results.chat;
+
+            for (let i = 0; i < data.length; i++) {
+              const userId = localStorage.getItem('userId');
+              const newMessage = document.createElement('p');
+              const span = document.createElement('span');
+              const realTime = data[i].updatedAt;
+              const findTime = findRealTime(realTime);
+
+              if (data[i].senderId === userId) {
+                newMessage.innerHTML = `<strong>Me:</strong> ` + data[i].content;
+                span.textContent = findTime;
+                span.classList.add('MyTime');
+                newMessage.className = 'mine';
+                newMessage.style.textAlign = 'right';
+              } else {
+                newMessage.innerHTML = `<strong>${data[i].User.firstName}</strong>: ${data[i].content}`;
+                formatTyping(data[i].User.firstName);
+                span.textContent = findTime;
+                span.classList.add('time');
+                newMessage.className = 'Others';
+                newMessage.style.textAlign = 'left';
+              }
+              const displayMessage = document.getElementById('messages');
+              newMessage.appendChild(span);
+              displayMessage.appendChild(newMessage);
+            }
+            // Scroll to bottom after messages are fetched
+            scrollToBottom();
+          };
+          getMessage();
+
+          // Function to format and display real-time timestamps
+          const findRealTime = time => {
+            // Parse the timestamp into a Date object
+            const timestampParts = time.split(/[^\d]+/);
+            const date = new Date(
+              Date.UTC(
+                parseInt(timestampParts[0]), // Year
+                parseInt(timestampParts[1]) - 1, // Month (months are 0-indexed in Date object)
+                parseInt(timestampParts[2]), // Day
+                parseInt(timestampParts[3]), // Hours
+                parseInt(timestampParts[4]), // Minutes
+                parseInt(timestampParts[5]), // Seconds
+                parseInt(timestampParts[6]) || 0 // Milliseconds
+              )
+            );
+
+            // Calculate AM/PM and formatted hours
+            const formattedHours = date.getHours() % 12 || 12;
+            const amPm = date.getHours() < 12 ? 'AM' : 'PM';
+
+            // Format the time
+            const formattedTime = `${formattedHours}:${date.getMinutes() < 10 ? '0' : ''}${date.getMinutes()} ${amPm}`;
+            return formattedTime;
+          };
+
+          // Event listener to handle incoming messages from the server
+          socket.on('returnMessage', data => {
+            const newMessage = document.createElement('li');
+            const senderName = data.senderName;
+            const span = document.createElement('span');
+            const findTime = findRealTime(data.date);
+
+            if (data !== '') {
+              if (data.socketId === socket.id) {
+                newMessage.textContent = 'Me: ' + data.content;
+                span.textContent = findTime;
+                span.classList.add('MyTime');
+                newMessage.className = 'mine';
+                newMessage.style.textAlign = 'right';
+              } else {
+                newMessage.textContent = `${data.senderName}: ${data.content}`;
+                newMessage.className = 'Others';
+                span.textContent = findTime;
+                span.classList.add('time');
+                newMessage.style.textAlign = 'left';
+              }
+              const displayMessage = document.getElementById('messages');
+              newMessage.appendChild(span);
+              displayMessage.appendChild(newMessage);
+            } else {
+              console.error('Message content is empty');
+            }
+          });
+
+          // Function to manage typing status and display typing indicators
+          const formatTyping = name => {
+            const inputField = document.getElementById('input');
+            let typingTimer;
+            const typingTimeout = 1000;
+
+            inputField.addEventListener('input', () => {
+              clearTimeout(typingTimer);
+              socket.emit('typing', true);
+              typingTimer = setTimeout(() => {
+                socket.emit('typing', false);
+              }, typingTimeout);
+            });
+
+            // Update typing status UI
+            const typingStatus = document.getElementById('typingStatus');
+            socket.on('typing', isTyping => {
+              if (isTyping) {
+                typingStatus.style.display = 'block';
+                typingStatus.textContent = ` ${name} is typing...`;
+              } else {
+                typingStatus.style.display = 'none';
+                typingStatus.textContent = '';
+              }
+            });
+          };
+
+          // Event listener for submitting messages
+          document.getElementById('form').addEventListener('submit', e => {
+            e.preventDefault();
+            const message = document.getElementById('input');
+            if (message.value === '') return alert('F**k no message please');
+            socket.emit('sentMessage', {
+              content: message.value,
+              socketId: socket.id,
+            });
+            message.value = '';
+            // Scroll to bottom after sending a message
+            scrollToBottom();
+          });
+        } else {
+          alert('Login please');
         }
-
+      };
     </script>
-</body>
-
+  </body>
 </html>

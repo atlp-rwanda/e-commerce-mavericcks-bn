@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import logger from '../logs/config';
 import { Request, Response } from 'express';
 import Order from '../database/models/order';
 import { sendInternalErrorResponse, validateFields } from '../validations';
 import sequelize from '../database/models/index';
-import { Transaction } from 'sequelize';
 import User from '../database/models/user';
 import { Product } from '../database/models/Product';
 import { Size } from '../database/models/Size';
 import Cart from '../database/models/cart';
 import OrderItems from '../database/models/orderItems';
+import { sendErrorResponse } from '../helpers/helper';
 
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
   const { id: userId } = req.user as User;
@@ -104,60 +105,62 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     sendInternalErrorResponse(res, error);
   }
 };
-export const getAllOrders = async (req: Request, res: Response): Promise<void> => {
-  const transaction: Transaction = await sequelize.transaction();
+export const getUserOrders = async (req: Request, res: Response) => {
   try {
+    const { id } = req.user as User;
     const orders = await Order.findAll({
-      attributes: ['id', 'totalPrice', 'country', 'city', 'phone'],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['email', 'phoneNumber', 'firstName', 'lastName'],
-        },
-        {
-          model: Cart,
-          as: 'Carts',
-        },
-      ],
-      transaction,
+      where: {
+        userId: id,
+      },
     });
 
-    if (orders.length === 0) {
-      res.status(404).json({
-        ok: false,
-        message: 'No orders found',
-      });
-      return;
+    if (!orders || orders.length === 0) {
+      return sendErrorResponse(res, 'No orders found');
     }
-    const [cartItems] = await sequelize.query('SELECT "productId", quantity from "CartsProducts" where "cartId" = ?', {
-      replacements: [orders.map((order: any) => order.Carts.id)],
-      transaction,
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Orders retrieved successfully',
+      data: orders,
     });
-    const orderedProducts = Promise.all(
-      cartItems.map(async (item: any) => {
-        const productsAndQuantity = [];
-        const product = await Product.findOne({
-          where: { id: item.productId },
-          attributes: ['name', 'description', 'id'],
-          include: {
-            model: Size,
-            as: 'sizes',
-          },
-        });
-        productsAndQuantity.push({ product, quantity: item.quantity });
-        return productsAndQuantity;
-      })
-    );
-    await transaction.commit();
-    res.status(200).json({ ok: true, data: { orders, orderItems: await orderedProducts } });
-  } catch (error) {
-    logger.error(error);
-    await transaction.rollback();
-    sendInternalErrorResponse(res, error);
-    return;
+  } catch (err) {
+    return sendInternalErrorResponse(res, err);
   }
 };
+export const sellerProductOrders = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.user as User;
+    const orders = await Order.findAll({
+      include: [
+        {
+          model: OrderItems,
+          as: 'orderItems',
+          include: [
+            {
+              model: Product,
+              as: 'products',
+              where: { sellerId: id },
+            },
+          ],
+        },
+      ],
+    });
+    if (!orders) {
+      return sendErrorResponse(res, 'No orders found');
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: 'Orders retrieved successfully',
+      data: orders,
+    });
+  } catch (err) {
+    logger.error('Error changing order status:', err);
+    console.log('hello there');
+    return sendInternalErrorResponse(res, err);
+  }
+};
+
 export const deleteOrder = async (req: Request, res: Response) => {
   try {
     const order = await Order.findByPk(req.params.id);
@@ -167,20 +170,6 @@ export const deleteOrder = async (req: Request, res: Response) => {
     }
     await Order.destroy({ where: { id: req.params.id } });
     res.status(200).json({ ok: true, message: 'Order deleted successfully!' });
-  } catch (error) {
-    logger.error(error);
-    sendInternalErrorResponse(res, error);
-  }
-};
-export const updateOrder = async (req: Request, res: Response) => {
-  try {
-    const order = await Order.findByPk(req.params.id);
-    if (!order) {
-      res.status(404).json({ ok: false, message: `No order found with id: ${req.params.id}` });
-      return;
-    }
-    await Order.update(req.body, { where: { id: req.params.id } });
-    res.status(200).json({ ok: true, message: 'Order updated successfully!' });
   } catch (error) {
     logger.error(error);
     sendInternalErrorResponse(res, error);

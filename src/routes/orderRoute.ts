@@ -1,14 +1,12 @@
 import { Router } from 'express';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
-import { getAllOrders, createOrder, deleteOrder, updateOrder } from '../controllers/orderController';
+import { getUserOrders, createOrder, deleteOrder, sellerProductOrders } from '../controllers/orderController';
 const orderRouter = Router();
 
 orderRouter
   .route('/')
-  .get(isAuthenticated, checkUserRoles('buyer'), getAllOrders)
+  .get(isAuthenticated, checkUserRoles('buyer'), getUserOrders)
   .post(isAuthenticated, checkUserRoles('buyer'), createOrder);
-orderRouter
-  .route('/:id')
-  .delete(isAuthenticated, checkUserRoles('admin'), deleteOrder)
-  .patch(isAuthenticated, checkUserRoles('buyer'), updateOrder);
+orderRouter.route('/get-orders').get(isAuthenticated, checkUserRoles('seller'), sellerProductOrders);
+orderRouter.route('/:id').delete(isAuthenticated, checkUserRoles('admin'), deleteOrder);
 export default orderRouter;

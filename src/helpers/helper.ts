@@ -7,7 +7,7 @@ interface ErrorResponse {
 }
 
 const errorResponses: Record<string, ErrorResponse> = {
-  invalidCredentials: { statusCode: 404, message: 'Invalid credentials' },
+  invalidCredentials: { statusCode: 400, message: 'Invalid credentials' },
   inactiveUser: { statusCode: 403, message: 'Your account has been blocked. Please contact support.' },
   unverifiedUser: { statusCode: 403, message: 'Your account is not verified. Please verify your account.' },
 };

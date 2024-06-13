@@ -44,7 +44,9 @@ export const signupUser = async (req: Request, res: Response) => {
     if (user?.dataValues.email === email) {
       return res.status(400).json({ ok: false, error: 'Email is already used, Login to continuue' });
     }
-
+    if (user?.dataValues.phoneNumber === phoneNumber) {
+      return res.status(400).json({ ok: false, error: 'Phone number is already used, try different Number' });
+    }
     const hashPassword = await passwordEncrypt(password);
 
     const newUser = await User.create({

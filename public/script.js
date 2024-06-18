@@ -20,6 +20,6 @@ checkoutButton.addEventListener('click', () => {
       window.location = url;
     })
     .catch(err => {
-      console.log(err.message);
+      logger.info(err.message);
     });
 });

@@ -40,7 +40,6 @@ module.exports = {
 
       return queryInterface.bulkInsert('Users', users.map(addUuid));
     } catch (err) {
-      console.log(err);
       throw err;
     }
   },

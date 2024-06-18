@@ -237,7 +237,7 @@ export const userVerify = async (req: Request, res: Response) => {
       const updatedUser = await user.update({ verified: true });
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (updatedUser) {
-        return res.status(201).json({ ok: true, message: 'Account verified, Login to continue.' });
+        return res.redirect(`${process.env.FRONT_END_BASEURL}/login?message=Account verified, Login to continue.`);
       }
     }
     return res.status(400).json({ ok: false, error: 'Verification failed. Try again later' });

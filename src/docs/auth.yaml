@@ -8,7 +8,7 @@ paths:
         Initiates the authentication process with Google OAuth 2.0. Users will be redirected to Google's authentication
         page to log in.
       responses:
-        '302':
+        "302":
           description: Redirects the user to Google's authentication page
       security: []
 
@@ -53,7 +53,7 @@ paths:
           description: Internal server error
   /api/auth/{token}/otp:
     post:
-      summary: 'Endpoint to verify OTP sent to you'
+      summary: "Endpoint to verify OTP sent to you"
       tags:
         - Login
       parameters:
@@ -73,13 +73,13 @@ paths:
                   type: string
       responses:
         200:
-          description: 'Get new to token for login'
+          description: "Get new to token for login"
         404:
-          description: 'No user sent token'
+          description: "No user sent token"
         400:
-          description: 'OTP Enter is wrong'
+          description: "OTP Enter is wrong"
         403:
-          description: 'Token expired'
+          description: "Token expired"
 
   /api/auth/forgot-password:
     post:
@@ -184,7 +184,7 @@ paths:
                   type: string
                   example: NewPassw0rd!
       responses:
-        '200':
+        "200":
           description: Successfully upated user password
           content:
             application/json:
@@ -197,7 +197,7 @@ paths:
                   message:
                     type: string
                     example: Successfully updated user password!
-        '400':
+        "400":
           description: Invalid input or old password incorrect
           content:
             application/json:
@@ -212,9 +212,8 @@ paths:
                     example: The old password is incorrect!
                   error:
                     type: string
-                    example:
-                      Ensuring it contains at least 1 letter, 1 number, and 1 special character, minimum 8 characters
-        '500':
+                    example: Ensuring it contains at least 1 letter, 1 number, and 1 special character, minimum 8 characters
+        "500":
           description: Internal server error
           content:
             application/json:

@@ -156,7 +156,6 @@ export const sellerProductOrders = async (req: Request, res: Response) => {
     });
   } catch (err) {
     logger.error('Error changing order status:', err);
-    console.log('hello there');
     return sendInternalErrorResponse(res, err);
   }
 };

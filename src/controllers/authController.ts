@@ -27,10 +27,7 @@ export const authenticateViaGoogle = (req: Request, res: Response, next: NextFun
       expiresIn: process.env.JWT_EXPIRATION as string,
     });
 
-    res.status(200).json({
-      ok: true,
-      token: token,
-    });
+    res.redirect(`${process.env.FRONT_END_BASEURL}/auth/success/${token}`);
   })(req, res, next);
 };
 // calculate password expiration

@@ -5,6 +5,7 @@ interface CategoryAttributes {
   id: number;
   name: string;
   description?: string;
+  image?: string;
 }
 
 export interface CategoryCreationAttributes extends Optional<CategoryAttributes, 'id'> {}
@@ -13,6 +14,7 @@ export class Category extends Model<CategoryAttributes, CategoryCreationAttribut
   public id!: number;
   public name!: string;
   public description!: string;
+  public image?: string;
 }
 
 Category.init(
@@ -30,6 +32,10 @@ Category.init(
     },
     description: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    image: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },

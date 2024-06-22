@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Category, CategoryCreationAttributes } from '../database/models/Category';
+import { Category } from '../database/models/Category';
 import logger from '../logs/config';
 import uploadImage from '../helpers/claudinary';
 

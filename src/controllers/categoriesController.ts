@@ -5,15 +5,13 @@ import uploadImage from '../helpers/claudinary';
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
-    const { name, description } = req.body as CategoryCreationAttributes;
-    const categoryImages: string[] = [];
-    const images: unknown = req.files;
+    const { name, description } = req.body as { name: string; description: string };
+    const image = req.file;
 
-    if (images instanceof Array && images.length === 1) {
-      const imageBuffer: Buffer = images[0].buffer;
+    if (image) {
+      const imageBuffer: Buffer = image.buffer;
       try {
         const url = await uploadImage(imageBuffer);
-        categoryImages.push(url);
 
         await Category.create({ name, description, image: url });
 
@@ -26,16 +24,17 @@ export const createCategory = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Error uploading image', error: error.message });
       }
     } else {
-      return res.status(400).json({ message: 'Category should have exactly one image' });
+      return res.status(400).json({ message: 'Image is required' });
     }
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof Error) {
       logger.error(error.message);
     }
-    res.status(500).json({ error: 'Failed to create category' });
+    return res.status(500).json({ error: 'Failed to create category', message: error.message });
   }
 };
-export const getAllCategories = async (req: Request, res: Response) => {
+
+export const getAllCategories: any = async (req: Request, res: Response) => {
   try {
     const categories = await Category.findAll();
     res.status(200).json({ ok: true, data: categories });

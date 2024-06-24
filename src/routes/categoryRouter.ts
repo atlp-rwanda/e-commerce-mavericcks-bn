@@ -9,4 +9,4 @@ export const categoryRouter = express.Router();
 categoryRouter
   .route('/')
   .post(isAuthenticated, multerUpload.single('image'), checkUserRoles('admin'), createCategory)
-  .get(isAuthenticated, checkUserRoles('seller'), getAllCategories);
+  .get(getAllCategories);

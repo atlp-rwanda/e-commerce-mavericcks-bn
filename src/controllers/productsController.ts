@@ -358,7 +358,33 @@ Product.afterCreate(async product => {
   }
   sendEmail('added_product_notification', { email: user.email, name: user.firstName });
 });
-
+Product.afterUpdate(async product => {
+  const notification = await Notification.create({
+    message: `Product called: ${product.name} was updated successfully`,
+    isRead: false,
+    userId: product.sellerId,
+  });
+  const user = await User.findOne({
+    where: { id: product.sellerId },
+    attributes: ['email', 'firstName', 'lastName'],
+  });
+  if (!user) {
+    return Promise.reject(new Error("User cannot be found! So the email won't be send successfully"));
+  }
+  sendEmail('updated_product_notification', { email: user.email, name: user.firstName });
+});
+Product.afterDestroy(async product => {
+  const notification = await Notification.create({
+    message: 'Product was deleted successfully',
+    isRead: false,
+    userId: product.sellerId,
+  });
+  const user = await User.findOne({ where: { id: product.sellerId }, attributes: ['email', 'firstName', 'lastName'] });
+  if (!user) {
+    return Promise.reject(new Error("User can't be found, so the email won't be sent successfully"));
+  }
+  sendEmail('deleted_product_notification', { email: user.email, name: user.firstName });
+});
 // Review a product (feedback + rating)
 export const provideReviewToProduct = async (req: Request, res: Response) => {
   try {

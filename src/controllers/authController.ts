@@ -31,7 +31,7 @@ export const authenticateViaGoogle = (req: Request, res: Response, next: NextFun
   })(req, res, next);
 };
 // calculate password expiration
-const calculatePasswordExpirationDate = (user: UserAttributes): Date | null => {
+export const calculatePasswordExpirationDate = (user: UserAttributes): Date | null => {
   const expirationMinutes = parseInt(process.env.PASSWORD_EXPIRATION_MINUTES as string);
   let expirationDate: Date | null = null;
 
@@ -47,7 +47,7 @@ const calculatePasswordExpirationDate = (user: UserAttributes): Date | null => {
 
   return expirationDate;
 };
-const redirectToPasswordUpdate = (res: Response): void => {
+export const redirectToPasswordUpdate = (res: Response): void => {
   res.redirect('/api/user/passwordUpdate');
 };
 // login function
@@ -55,15 +55,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    const requiredFields = ['email', 'password'];
-    const missingFields = validateFields(req, requiredFields);
-
     // Field validation
-    if (missingFields.length > 0) {
-      logger.error(`Adding User:Required fields are missing:${missingFields.join(', ')}`);
+    if (!email || !password) {
       res.status(400).json({
         ok: false,
-        message: `Required fields are missing: ${missingFields.join(', ')}`,
+        message: 'Required fields are missing',
       });
       return;
     }
@@ -124,24 +120,27 @@ export const verifyOTP = async (req: Request, res: Response) => {
 };
 // Function to create OTP Token, Save it Postgres,
 export const sendOTP = async (req: Request, res: Response, email: string) => {
-  const userInfo = await User.findOne({ where: { email } });
-  if (userInfo) {
-    const { id, email, firstName } = userInfo.dataValues;
+  try {
+    const userInfo = await User.findOne({ where: { email } });
 
-    const token = await createOTPToken(id, email, firstName);
+    if (userInfo) {
+      const { id, email, firstName } = userInfo.dataValues;
+      const token = await createOTPToken(id, email, firstName);
+      const otpSaved = await saveOTPDB(id, token);
 
-    const otpSaved = await saveOTPDB(id, token);
-
-    if (otpSaved) {
-      /**
-       * The token used for comparing the received OTP via email with the
-       * generated token, which contains the user's ID.
-       */
-      const accessToken = jwt.sign({ id, FAEnabled: true }, process.env.SECRET_KEY as string, {
-        expiresIn: process.env.JWT_EXPIRATION as string,
-      });
-      res.status(200).json({ ok: true, token: accessToken });
+      if (otpSaved) {
+        const accessToken = jwt.sign({ id, FAEnabled: true }, process.env.SECRET_KEY as string, {
+          expiresIn: process.env.JWT_EXPIRATION as string,
+        });
+        return res.status(200).json({ ok: true, token: accessToken });
+      } else {
+        return res.status(500).json({ ok: false, message: 'Failed to save OTP' });
+      }
+    } else {
+      return res.status(404).json({ ok: false, message: 'User not found' });
     }
+  } catch (error) {
+    return res.status(500).json({ ok: false, message: 'Internal Server Error' });
   }
 };
 

@@ -56,7 +56,7 @@ const constructUserResponse = (user: User, updatedFields: any) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, gender, phoneNumber } = req.body;
-
+    console.log(req.body);
     const user = await User.findByPk(req.params.id);
 
     if (!user) {

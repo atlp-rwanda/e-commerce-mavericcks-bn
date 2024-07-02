@@ -7,13 +7,13 @@ import User from '../database/models/user';
 
 export const addToWishlist = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const user = req.user as User;
+    const { sizeId } = req.params;
+    const { id } = req.user as User;
 
     const itemExist = await Wishlist.findOne({
       where: {
-        userId: user.id,
-        sizeId: id,
+        userId: id,
+        sizeId: sizeId,
       },
     });
     if (itemExist) {
@@ -23,8 +23,8 @@ export const addToWishlist = async (req: Request, res: Response) => {
       });
     }
     await Wishlist.create({
-      userId: user.id,
-      sizeId: id,
+      userId: id,
+      sizeId: sizeId,
     });
 
     return res.status(201).json({

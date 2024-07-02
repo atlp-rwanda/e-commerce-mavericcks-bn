@@ -13,8 +13,9 @@ config();
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.headers.authorization ?? req.params.token;
-
+    const token = req.headers.authorization?.includes('Bearer')
+      ? req.headers.authorization.split(' ')[1]
+      : req.headers.authorization ?? req.params.token;
     if (!token) {
       logger.error('Authentication required.');
       return res.status(401).json({ message: 'Authentication required.' });

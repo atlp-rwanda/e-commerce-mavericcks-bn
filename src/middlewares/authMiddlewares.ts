@@ -83,7 +83,7 @@ export const verifyIfSeller = async (user: any, req: Request, res: Response) => 
     sendOTP(req, res, user.dataValues.email);
   } else {
     // Authenticate user with jwt
-    const token = await userToken(user.id);
+    const token = await userToken(user.id, userRole?.name);
 
     res.status(200).json({
       ok: true,

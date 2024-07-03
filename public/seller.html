@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seller Order Management</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        flex-direction: column;
+      }
+
+      #orderStatusContainer {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        display: none;
+      }
+
+      #loginForm {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      input[type='email'],
+      input[type='password'] {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+      }
+
+      button {
+        background-color: #007bff;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      .orderContainer {
+        border: 1px solid red;
+        width: 100vw;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      tr:hover {
+        background-color: #f9f9f9;
+      }
+
+      .dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        z-index: 999;
+        display: none;
+      }
+
+      .confirm-button,
+      .cancel-button,
+      .close-button {
+        background-color: #007bff;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+
+      .confirm-button:hover {
+        background-color: #0056b3;
+      }
+
+      .cancel-button,
+      .close-button {
+        background-color: #ccc;
+      }
+
+      .cancel-button:hover,
+      .close-button:hover {
+        background-color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loginForm">
+      <h1>Login</h1>
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button id="login">Login</button>
+    </div>
+
+    <div id="orderStatusContainer" class="orderContainer">
+      <h1>Seller Order Management</h1>
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>Select</th>
+            <th>Product</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody"></tbody>
+      </table>
+    </div>
+
+    <div id="statusChangeDialog" class="dialog">
+      <p id="statusChangeMessage"></p>
+      <label for="newStatus">New Status:</label>
+      <select id="newStatus">
+        <option value="pending">Pending</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="returned">Paid</option>
+      </select>
+      <label for="deliveryDate">Expected Delivery Date:</label>
+      <input type="date" id="deliveryDate" />
+      <button id="confirmStatusChangeButton" class="confirm-button">Change Status</button>
+      <button id="cancelStatusChangeButton" class="cancel-button">Cancel</button>
+    </div>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+      const changeOrderStatus = async (orderId, newStatus, expectedDeliveryDate) => {
+        const token = localStorage.getItem('Token');
+        const response = await fetch(`http://localhost:8080/api/orders/${orderId}/seller-change-status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token,
+          },
+          body: JSON.stringify({ status: newStatus, expectedDeliveryDate }),
+        });
+        return await response.json();
+      };
+
+      const getAllOrders = async () => {
+        try {
+          const token = localStorage.getItem('Token');  
+          const response = await fetch('http://localhost:8080/api/orders/get-orders', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'authorization': token,
+            },
+          });
+          const data = await response.json();
+          if (Array.isArray(data.data)) {
+            populateOrdersTable(data.data);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      const populateOrdersTable = orders => {
+        try {
+          const ordersTableBody = document.getElementById('ordersTableBody');
+          ordersTableBody.innerHTML = '';
+
+          orders.forEach(order => {
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td><input type="radio" name="order" value="${order.id}"></td>
+              <td>${order.orderItems[0].products.name}</td>
+              <td>${order.status}</td>
+              <td>
+                <button class="changeStatusButton">Change Status</button>
+              </td>
+            `;
+            ordersTableBody.appendChild(row);
+          });
+
+          addEventListenersToOrderButtons();
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      const addEventListenersToOrderButtons = () => {
+        const changeStatusButtons = document.getElementsByClassName('changeStatusButton');
+
+        Array.from(changeStatusButtons).forEach(button => {
+          button.addEventListener('click', async () => {
+            const orderId = getSelectedOrderId();
+            if (orderId) {
+              showStatusChangeDialog(orderId);
+            }
+          });
+        });
+      };
+
+      const getSelectedOrderId = () => {
+        const selectedOrderRadio = document.querySelector('input[name="order"]:checked');
+        return selectedOrderRadio ? selectedOrderRadio.value : null;
+      };
+
+      const showStatusChangeDialog = (orderId) => {
+        const statusChangeDialog = document.getElementById('statusChangeDialog');
+        const statusChangeMessage = document.getElementById('statusChangeMessage');
+        const confirmStatusChangeButton = document.getElementById('confirmStatusChangeButton');
+        const cancelStatusChangeButton = document.getElementById('cancelStatusChangeButton');
+
+        statusChangeMessage.textContent = `Change status for order ${orderId}:`;
+        statusChangeDialog.style.display = 'block';
+
+        confirmStatusChangeButton.onclick = async () => {
+          const newStatus = document.getElementById('newStatus').value;
+          const expectedDeliveryDate = document.getElementById('deliveryDate').value;
+          await changeOrderStatus(orderId, newStatus, expectedDeliveryDate);
+          statusChangeDialog.style.display = 'none';
+          getAllOrders();
+        };
+
+        cancelStatusChangeButton.onclick = () => {
+          statusChangeDialog.style.display = 'none';
+        };
+      };
+
+      const loginToAccount = () => {
+        document.addEventListener('DOMContentLoaded', e => {
+          const email = document.querySelector('#email');
+          const password = document.getElementById('password');
+          const loginButton = document.getElementById('login');
+          const loginForm = document.getElementById('loginForm');
+          const orderStatusContainer = document.getElementById('orderStatusContainer');
+
+          loginButton.addEventListener('click', async e => {
+            e.preventDefault();
+            const response = await fetch('http://localhost:8080/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: email.value,
+                password: password.value,
+              }),
+            });
+            const result = await response.json();
+            if (result.token) {
+              localStorage.setItem('Token', result.token);
+              loginForm.style.display = 'none';
+              orderStatusContainer.style.display = 'block';
+              getAllOrders();
+            } else {
+              alert('Login failed. Please check your credentials.');
+            }
+          });
+        });
+      };
+
+      loginToAccount();
+    </script>
+  </body>
+</html>

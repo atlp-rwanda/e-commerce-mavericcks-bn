@@ -16,6 +16,7 @@ interface OrderAttributes {
   userId: string;
   zipCode?: string;
   totalPrice: number;
+  expectedDeliveryDate?: Date;
 }
 
 interface OrderCreationAttributes extends Optional<OrderAttributes, 'id'> {}
@@ -33,6 +34,7 @@ class Order extends Model<OrderAttributes, OrderCreationAttributes> implements O
   public userId!: string;
   public totalPrice!: number;
   public zipCode?: string;
+  public expectedDeliveryDate?: Date;
 }
 
 Order.init(
@@ -81,6 +83,10 @@ Order.init(
     totalPrice: {
       type: DataTypes.FLOAT,
       allowNull: false,
+    },
+    expectedDeliveryDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,

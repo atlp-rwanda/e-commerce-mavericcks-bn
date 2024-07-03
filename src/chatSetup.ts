@@ -66,7 +66,13 @@ const disconnected = () => {
 };
 
 export const socketSetUp = (server: HttpServer) => {
-  const io = new Server(server);
+  const io = new Server(server, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    },
+  });
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   io.use(async (socket: CustomSocket, next) => {
     const id = findId(socket);
@@ -79,5 +85,9 @@ export const socketSetUp = (server: HttpServer) => {
     socket.on('sentMessage', data => sentMessage(socket, data, io));
     socket.on('typing', isTyping => handleTyping(socket, isTyping));
     socket.on('disconnect', disconnected);
+    socket.on('changeOrderStatus', async statusData => {
+      io.emit('orderStatusChanged', { order: statusData });
+    });
   });
+  return io;
 };

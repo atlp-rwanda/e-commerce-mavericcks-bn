@@ -68,3 +68,4 @@ const server = app.listen(PORT, () => {
 });
 
 socketSetUp(server);
+export const io = socketSetUp(server);

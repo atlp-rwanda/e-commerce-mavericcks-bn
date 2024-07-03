@@ -49,6 +49,10 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
+      expectedDeliveryDate: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

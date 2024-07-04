@@ -187,17 +187,14 @@ export const editUserRole = async (req: Request, res: Response) => {
 export const editUser = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, gender, phoneNumber } = req.body;
-
     const user = await User.findOne({ where: { id: req.params.id } });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let uploadedImage: any;
     if (!req.file) {
       res.status(400).json({ ok: false, error: 'Profile Image required.' });
+      return;
     }
-    if (req.file) {
-      uploadedImage = await uploadImage(req.file.buffer);
-    }
+    const uploadedImage = await uploadImage(req.file.buffer);
     const updatedFields = {
       firstName: firstName || user?.firstName,
       lastName: lastName || user?.lastName,

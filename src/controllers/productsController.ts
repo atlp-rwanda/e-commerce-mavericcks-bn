@@ -246,7 +246,10 @@ export const getAllProduct = async (req: Request, res: Response) => {
   try {
     // Fetch all products with their associated sizes
     const products: any = await Product.findAll({
-      include: [{ model: Size, as: 'sizes' }],
+      include: [
+        { model: Size, as: 'sizes' },
+        { model: Review, as: 'reviews', include: [{ model: User, as: 'user', attributes: ['photoUrl', 'firstName'] }] },
+      ],
     });
 
     const currentDate = new Date();
@@ -277,7 +280,7 @@ export const getProductById = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const product = await Product.findByPk(productId, {
-      include: [{ model: Size, as: 'sizes' }],
+      include: [{ model: Size, as: 'sizes' },{ model: Review, as: 'reviews', include: [{ model: User, as: 'user', attributes: ['photoUrl', 'firstName'] }] },],
     });
 
     if (!product) {
@@ -483,30 +486,3 @@ export const calculateAverageRating = async (req: Request, res: Response) => {
   }
 };
 
-// get product review ---- Buyer
-export const getProductReviewsById = async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.params;
-    const product = await Product.findByPk(productId, {
-      include: [
-        { model: Size, as: 'sizes' },
-        { model: Review, as: 'reviews', include: [{ model: User, as: 'user', attributes: ['photoUrl', 'firstName'] }] },
-      ],
-    });
-
-    if (!product) {
-      return res.status(404).json({
-        ok: false,
-        message: 'Product not found',
-      });
-    }
-
-    res.status(200).json({
-      ok: true,
-      message: 'Product retrieved successfully',
-      data: product,
-    });
-  } catch (error) {
-    sendInternalErrorResponse(res, error);
-  }
-};

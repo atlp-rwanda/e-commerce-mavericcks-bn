@@ -9,8 +9,6 @@ import { Size } from '../database/models/Size';
 import CartsProducts from '../database/models/cartsProducts';
 import { validateFields } from '../validations';
 import { Transaction } from 'sequelize';
-import { checkStockSize, updateStock } from '../helpers/stockSizeManagers';
-
 const addCartItem = async (req: Request, res: Response): Promise<void> => {
   const { productId, sizeId, quantity } = req.body;
   const { id: userId } = req.user as User;
@@ -36,18 +34,7 @@ const addCartItem = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ ok: false, message: 'Size not found for this product' });
       return;
     }
-    const stock = await checkStockSize(sizeId, productId, quantity);
-    if (stock <= 0) {
-      const product = await Product.findByPk(productId, {
-        include: [{ model: Size, as: 'sizes', where: { id: sizeId }, attributes: ['quantity'] }],
-      });
 
-      res
-        .status(404)
-        .json({ ok: false, message: `Our stock has ${product?.sizes[0].quantity} product(s) of this size only!` });
-      return;
-    }
-    await updateStock(sizeId, productId, stock);
     // Find the cart for the current user
     const cart = await Cart.findOne({ where: { userId }, transaction });
     if (cart) {
@@ -102,12 +89,12 @@ const updateCartItem = async (req: Request, res: Response): Promise<void> => {
 
   const transaction = await sequelize.transaction();
   try {
-    const cartItem: any = await Cart.findOne({
+    const cartItem: Cart | null = await Cart.findOne({
       where: { userId },
       transaction,
     });
 
-    if (!cartItem) {
+    if (cartItem === null) {
       res.status(404).json({ ok: false, message: 'Cart not found' });
       return;
     }
@@ -139,7 +126,7 @@ const getCartItems = async (req: Request, res: Response): Promise<void> => {
 
   const transaction = await sequelize.transaction();
   try {
-    const cart: any = await Cart.findOne({
+    const cart: Cart | null = await Cart.findOne({
       where: { userId },
       include: [
         {
@@ -157,7 +144,7 @@ const getCartItems = async (req: Request, res: Response): Promise<void> => {
       ],
       transaction,
     });
-    if (!cart) {
+    if (cart === null) {
       res.status(404).json({ ok: false, message: 'Cart not found' });
       return;
     }

@@ -160,7 +160,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     const token = await userToken(user.id, user.email);
 
     // Send email with token
-    const link = `${process.env.URL_HOST}/api/auth/reset-password/${token}`;
+    const link = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
     await sendEmail('reset_password', {
       name: `${user.firstName} ${user.lastName}`,

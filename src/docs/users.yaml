@@ -34,21 +34,36 @@ paths:
           description: Internal Server Error
         400:
           description: Email is already used, Login to continuue
-  /api/users/{page}:
+  /api/users:
     get:
       summary: Get all users
       security:
         - bearerAuth: []
       tags:
         - User
+      responses:
+        200:
+          description: Successfull get all users
+        500:
+          description: Internal Server Error
+  /api/users/role/{roleName}:
+    get:
+      summary: Get users by role name
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+        - Role
       parameters:
         - in: path
-          name: page
-          required: false
+          name: roleName
+          required: true
           type: string
       responses:
         200:
           description: Successfull get all users
+        401:
+          description: Authentication required - Unauthorized
         500:
           description: Internal Server Error
   /api/users/edit/{id}:

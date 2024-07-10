@@ -1,0 +1,127 @@
+tags:
+  - name: Notifications
+    description: Managing notifications for product's lifecycle changes
+
+paths:
+  /api/notifications/{userId}:
+    get:
+      description: Get all notifications based on the the user's ID
+      summmary: Get all notifications
+      security:
+        - bearerAuth: []
+      tags:
+        - Notifications
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            description: The id of the user
+      responses:
+        '200':
+          description: Notifications fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  isRead:
+                    type: boolean
+                  message:
+                    type: string
+                  userId:
+                    type: string
+        '404':
+          description: No notifications were  found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  message:
+                    type: string
+    delete:
+      description: User should be able to delete all notifications at once
+      summary: Delete all notifications at once
+      tags:
+        - Notifications
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            description: The user ID
+      responses:
+        '200':
+          description: All notifications were successfully  deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: Notifications for this user wcan't be found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  message:
+                    type: string
+    patch:
+      description: User should be able to updates all notifications at once
+      summary: Updates all notifications at once
+      tags:
+        - Notifications
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: Updates all notifications
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isRead:
+                  type: boolean
+                  example: true
+  /api/notifications/{id}:
+    patch:
+      description: User should be able to update notification, provided the notification ID
+      summary: Update the notification status
+      tags:
+        - Notifications
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          description: The notification id
+    requestBody:
+      description: Update the notification
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              isRead:
+                type: boolean

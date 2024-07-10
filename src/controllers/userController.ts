@@ -9,7 +9,6 @@ import { sendEmail } from '../helpers/send-email';
 import { sendInternalErrorResponse, validateEmail, validateFields, validatePassword } from '../validations';
 import { passwordEncrypt } from '../helpers/encrypt';
 import getDefaultRole from '../helpers/defaultRoleGenerator';
-import VendorRequest from '../database/models/sellerRequest';
 import sequelize from '../database/models/index';
 import { Transaction } from 'sequelize';
 
@@ -85,36 +84,65 @@ export const signupUser = async (req: Request, res: Response) => {
     return;
   }
 };
+
 // Function for get all users
 export const getAllUser = async (req: Request, res: Response) => {
   try {
-    const page = parseInt(req.params.page, 10);
-    const offset = Number.isNaN(page) ? 0 : page * 10;
-
     const users = await User.findAll({
       attributes: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'photoUrl', 'gender'],
-      limit: 10,
-      offset: offset,
       include: {
         model: Role,
         attributes: ['name'],
       },
     });
+    logger.info(`Fetched ${users.length} users`);
     return res.status(200).json({ ok: true, message: users });
   } catch (error) {
-    logger.error(`Error for fetch all user: ${error}`);
+    logger.error(`Error fetching all users: ${error}`);
     sendInternalErrorResponse(res, error);
     return;
   }
 };
-// Function to getOne user
+
+// Function to get users by role name
+export const getUsersByRoleName = async (req: Request, res: Response) => {
+  try {
+    const { roleName } = req.params;
+
+    const role = await Role.findOne({ where: { name: roleName } });
+
+    if (!role) {
+      return res.status(404).json({ ok: false, error: 'Role not found' });
+    }
+
+    const users = await User.findAll({
+      where: { RoleId: role.id },
+      attributes: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'photoUrl', 'gender'],
+      include: {
+        model: Role,
+        attributes: ['name'],
+      },
+    });
+
+    if (users.length === 0) {
+      return res.status(404).json({ ok: false, error: 'No users found for this role' });
+    }
+
+    logger.info(`Fetched ${users.length} users with role ${roleName}`);
+    return res.status(200).json({ ok: true, message: users });
+  } catch (error) {
+    logger.error(`Error fetching users by role: ${error}`);
+    sendInternalErrorResponse(res, error);
+    return;
+  }
+};
+
+// Function to get one user
 export const getOneUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const user: User | null = await User.findOne({
-      where: {
-        id,
-      },
+      where: { id },
       attributes: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'photoUrl', 'gender'],
       include: {
         model: Role,
@@ -130,13 +158,12 @@ export const getOneUser = async (req: Request, res: Response) => {
     return;
   }
 };
-// Function for delete a user
+
+// Function to delete a user
 export const deleteUser = async (req: Request, res: Response) => {
   try {
     const deleteUserAccount = await User.destroy({
-      where: {
-        id: req.params.id,
-      },
+      where: { id: req.params.id },
     });
     if (deleteUserAccount === 0) {
       return res.status(404).json({ ok: false, message: 'User with this ID does not exist' });
@@ -148,6 +175,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     return;
   }
 };
+
 // Function to edit user role
 export const editUserRole = async (req: Request, res: Response) => {
   const transaction: Transaction = await sequelize.transaction();
@@ -165,16 +193,15 @@ export const editUserRole = async (req: Request, res: Response) => {
       res.status(404).json({ ok: false, error: 'User not found' });
       return;
     }
-    const requestedUser = await VendorRequest.findOne({ where: { vendorId: userId }, transaction });
-    if (!requestedUser) {
-      logger.error('Error User request Not Found');
-      res.status(404).json({ ok: false, error: 'User request not found' });
+
+    const role = await Role.findByPk(roleId);
+    if (!role) {
+      res.status(404).json({ ok: false, message: `There is no Role with this id: ${roleId}` });
       return;
     }
-    const role = await Role.findByPk(roleId);
-    if (!role) return res.status(404).json({ ok: false, message: `There is no Role with this id: ${roleId}` });
-    await user.update({ RoleId: roleId });
-    await requestedUser.update({ status: 'approved' });
+
+    await user.update({ RoleId: roleId }, { transaction });
+    await transaction.commit();
 
     res.status(200).json({ ok: true, message: 'Role assigned successfully.' });
   } catch (error) {
@@ -183,6 +210,7 @@ export const editUserRole = async (req: Request, res: Response) => {
     sendInternalErrorResponse(res, error);
   }
 };
+
 // Function to update user profile
 export const editUser = async (req: Request, res: Response) => {
   try {
@@ -220,6 +248,7 @@ export const editUser = async (req: Request, res: Response) => {
     sendInternalErrorResponse(res, error);
   }
 };
+
 // Function for verifying a user
 export const userVerify = async (req: Request, res: Response) => {
   try {
@@ -249,6 +278,7 @@ export const userVerify = async (req: Request, res: Response) => {
     }
   }
 };
+
 // Function for resend verification link
 export const resendVerifyLink = async (req: Request, res: Response) => {
   try {
@@ -284,6 +314,7 @@ export const resendVerifyLink = async (req: Request, res: Response) => {
     sendInternalErrorResponse(res, error);
   }
 };
+
 // Function to enable two factor authentication(2FA)
 export const enable2FA = async (req: Request, res: Response) => {
   try {

@@ -2,7 +2,6 @@
 import { Router } from 'express';
 import {
   createProduct,
-  createSize,
   deleteProductById,
   getAllProduct,
   getProductById,
@@ -20,7 +19,7 @@ import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares'
 const router = Router();
 
 router.post(
-  '/:categoryId/create-product/',
+  '/create-product/',
   isAuthenticated,
   checkUserRoles('seller'),
   multerUpload.array('images', 8),
@@ -34,7 +33,6 @@ router.put(
   checkUserRoles('seller'),
   updateProduct
 );
-router.post('/:productId/add-size', isAuthenticated, checkUserRoles('seller'), createSize);
 
 router.get('/', getAllProduct);
 router.get('/sizes', isAuthenticated, checkUserRoles('seller'), getAllSizes);

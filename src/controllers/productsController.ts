@@ -18,23 +18,27 @@ import Order from '../database/models/order';
 import OrderItems from '../database/models/orderItems';
 
 export const createProduct = async (req: Request, res: Response) => {
+  const transaction = await sequelize.transaction();
   try {
-    const { name, description, colors } = req.body as ProductAttributes;
-    const { categoryId } = req.params;
+    const { categoryId, name, description, colors, sizes } = req.body as ProductAttributes & {
+      sizes: SizeAttributes[];
+    };
     const seller = (await req.user) as User;
     const sellerId = seller.id;
 
-    // when products exists
-    const thisProductExists = await Product.findOne({ where: { name } });
+    // Check if product exists
+    const thisProductExists = await Product.findOne({ where: { name }, transaction });
 
     if (thisProductExists) {
+      await transaction.rollback();
       return res.status(400).json({
         ok: false,
         message: 'This Product already exists, You can update the stock levels instead.',
         data: thisProductExists,
       });
     }
-    // handle images
+
+    // Handle images
     const productImages: string[] = [];
     const images: unknown = req.files;
     if (images instanceof Array && images.length > 3) {
@@ -44,34 +48,33 @@ export const createProduct = async (req: Request, res: Response) => {
         productImages.push(url);
       }
     } else {
+      await transaction.rollback();
       return res.status(400).json({
         message: 'Product should have at least 4 images',
       });
     }
 
-    // create product
-    await Product.create({ sellerId, name, description, categoryId, colors, images: productImages });
+    // Create product
+    const product = await Product.create(
+      { sellerId, name, description, categoryId, colors, images: productImages },
+      { transaction }
+    );
 
+    // Create sizes
+    if (sizes || sizes.length > 0) {
+      for (const sizeData of sizes) {
+        await Size.create({ ...sizeData, productId: product.id }, { transaction });
+      }
+    }
+
+    await transaction.commit();
     res.status(201).json({
       ok: true,
       message: 'Thank you for adding new product in the store!',
+      product,
     });
   } catch (error) {
-    sendInternalErrorResponse(res, error);
-  }
-};
-
-export const createSize = async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.params;
-    const { size, price, discount, expiryDate, quantity } = req.body as SizeAttributes;
-
-    await Size.create({ size, price, discount, expiryDate, productId, quantity });
-    res.status(201).json({
-      ok: true,
-      message: 'Product size added successfully',
-    });
-  } catch (error) {
+    await transaction.rollback();
     sendInternalErrorResponse(res, error);
   }
 };

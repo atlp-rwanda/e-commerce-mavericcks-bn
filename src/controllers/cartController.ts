@@ -9,6 +9,7 @@ import { Size } from '../database/models/Size';
 import CartsProducts from '../database/models/cartsProducts';
 import { validateFields } from '../validations';
 import { Transaction } from 'sequelize';
+import { time } from 'console';
 const addCartItem = async (req: Request, res: Response): Promise<void> => {
   const { productId, sizeId, quantity } = req.body;
   const { id: userId } = req.user as User;
@@ -120,7 +121,6 @@ const updateCartItem = async (req: Request, res: Response): Promise<void> => {
 };
 
 //getting items of a cart
-
 const getCartItems = async (req: Request, res: Response): Promise<void> => {
   const { id: userId } = req.user as User;
 
@@ -168,9 +168,11 @@ const getCartItems = async (req: Request, res: Response): Promise<void> => {
             transaction,
           }),
           quantity: item.quantity,
+          timeStamps: (item as any).createdAt,
         };
       })
     );
+
     if ((await allProducts).length < 1) {
       res.status(404).json({ ok: false, message: 'No Product in the Cart' });
       return;
@@ -185,6 +187,7 @@ const getCartItems = async (req: Request, res: Response): Promise<void> => {
         sellerId,
         image: images[0],
         quantity: item.quantity,
+        createdAt: item.timeStamps,
       };
     });
     await transaction.commit();
@@ -225,4 +228,34 @@ const clearCart = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { addCartItem, updateCartItem, getCartItems, clearCart };
+// controller to delete cart item
+const deleteCartItem = async (req: Request, res: Response): Promise<void> => {
+  const { productId, sizeId } = req.body;
+  const { id: userId } = req.user as User;
+
+  const transaction = await sequelize.transaction();
+  try {
+    const cartItem: Cart | null = await Cart.findOne({
+      where: { userId },
+      transaction,
+    });
+
+    if (cartItem === null) {
+      res.status(404).json({ ok: false, message: 'Cart not found' });
+      return;
+    }
+
+    await CartsProducts.destroy({
+      where: { cartId: cartItem.id, productId, sizeId },
+      transaction,
+    });
+
+    await transaction.commit();
+    res.status(200).json({ ok: true, message: 'Cart item deleted successfully' });
+  } catch (error) {
+    await transaction.rollback();
+    logger.error(error);
+    sendInternalErrorResponse(res, error);
+  }
+};
+export { addCartItem, updateCartItem, getCartItems, clearCart, deleteCartItem };

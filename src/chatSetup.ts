@@ -26,7 +26,6 @@ export const findId = (socket: CustomSocket) => {
 };
 
 interface Message {
-  socketId: string;
   content: string;
   msgData: string;
 }
@@ -39,14 +38,14 @@ const sentMessage = async (socket: CustomSocket, data: Message, io: Server) => {
   const senderId = socket.userId;
   if (senderId) {
     try {
-      const { content, socketId } = data;
+      const { content } = data;
+      console.log('--------------messages are here,', data);
       const { firstName } = await getUserNames(socket.userId as string);
 
-      const chat = await Chat.create({ senderId, socketId, content });
+      const chat = await Chat.create({ senderId, content });
 
       io.emit('returnMessage', {
         senderId: chat.dataValues.senderId,
-        socketId: chat.dataValues.socketId,
         content: chat.dataValues.content,
         senderName: firstName,
         readStatus: chat.dataValues.readStatus,

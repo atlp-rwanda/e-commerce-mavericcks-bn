@@ -17,7 +17,7 @@ export const chats = async (req: Request, res: Response) => {
         model: User,
         attributes: ['firstName', 'lastName', 'photoUrl'],
       },
-      attributes: ['id', 'senderId', 'socketId', 'content', 'updatedAt'],
+      attributes: ['id', 'senderId', 'content', 'updatedAt'],
     });
 
     return res.status(200).json({ ok: true, chat });

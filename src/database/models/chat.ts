@@ -6,7 +6,6 @@ interface ChatAttr {
   id: string;
   senderId: string;
   content: string;
-  socketId: string;
   readStatus?: boolean;
   createdAt?: Date | null;
   updatedAt?: Date | null;
@@ -18,7 +17,6 @@ class Chat extends Model<ChatAttr, ChatCreationAttr> implements ChatAttr {
   public id!: string;
   public senderId!: string;
   public content!: string;
-  public socketId!: string;
   public readStatus!: boolean;
   public readonly createdAt: Date | undefined;
   public readonly updatedAt: Date | undefined;
@@ -45,10 +43,7 @@ Chat.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    socketId: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+
     readStatus: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
@@ -66,3 +61,4 @@ Chat.init(
 Chat.belongsTo(User, { foreignKey: 'senderId' });
 
 export default Chat;
+// sequelize migration to remove the column socketId from the Chats table

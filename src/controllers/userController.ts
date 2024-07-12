@@ -242,7 +242,7 @@ export const editUser = async (req: Request, res: Response) => {
       photoUrl: updatedFields.photoUrl,
     };
 
-    res.status(201).json({ ok: true, message: userResponse });
+    res.status(201).json({ ok: true, data: userResponse });
   } catch (error) {
     logger.error('Error Edit User Role: ', error);
     sendInternalErrorResponse(res, error);

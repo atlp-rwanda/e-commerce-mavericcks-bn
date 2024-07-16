@@ -11,6 +11,6 @@ cartRouter
   .get([isAuthenticated, checkUserRoles('buyer')], getCartItems)
   .post([isAuthenticated, checkUserRoles('buyer')], addCartItem)
   .delete([isAuthenticated, checkUserRoles('buyer')], clearCart);
-cartRouter.route('/:id').patch([isAuthenticated, checkUserRoles('buyer')], updateCartItem);
 cartRouter.route('/delete').delete([isAuthenticated, checkUserRoles('buyer')], deleteCartItem);
+cartRouter.route('/:id').patch([isAuthenticated, checkUserRoles('buyer')], updateCartItem);
 export default cartRouter;

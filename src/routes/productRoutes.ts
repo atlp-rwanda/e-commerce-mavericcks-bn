@@ -12,6 +12,7 @@ import {
   provideReviewToProduct,
   calculateAverageRating,
   deleteReview,
+  getAllProductsBySeller,
 } from '../controllers/productsController';
 import multerUpload from '../helpers/multer';
 import { checkUserRoles, isAuthenticated } from '../middlewares/authMiddlewares';
@@ -43,5 +44,6 @@ router.put('/:sizeId/unavailable', isAuthenticated, checkUserRoles('seller'), ma
 router.post('/:productId/review/', isAuthenticated, multerUpload.single('feedbackImage'), provideReviewToProduct);
 router.delete('/:productId/review/:reviewId', isAuthenticated, deleteReview);
 router.get('/:productId/review/statistics', calculateAverageRating);
+router.get('/seller-products/:sellerId', isAuthenticated, checkUserRoles('seller'), getAllProductsBySeller);
 
 export default router;

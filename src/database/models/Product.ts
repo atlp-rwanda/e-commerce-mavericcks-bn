@@ -12,7 +12,7 @@ export interface ProductAttributes {
   description: string;
   images: string[];
   colors?: string[];
-  categoryId: string;
+  categoryName: string;
   sizes?: any;
   createdAt?: Date;
   updatedAt?: Date;
@@ -23,7 +23,7 @@ export class Product extends Model<ProductAttributes> implements ProductAttribut
   public sellerId!: string;
   public name!: string;
   public description!: string;
-  public categoryId!: string;
+  public categoryName!: string;
   public images!: string[];
   public colors!: string[];
   public sizes!: any;
@@ -65,7 +65,7 @@ Product.init(
       onUpdate: 'CASCADE',
       allowNull: false,
     },
-    categoryId: {
+    categoryName: {
       type: DataTypes.UUID,
       references: {
         model: 'Category',
@@ -76,6 +76,6 @@ Product.init(
   { sequelize: sequelize, timestamps: true, modelName: 'Product', tableName: 'products' }
 );
 
-Product.belongsTo(Category, { foreignKey: 'categoryId' });
+Product.belongsTo(Category, { foreignKey: 'categoryName' });
 Product.belongsTo(User, { foreignKey: 'sellerId', as: 'user' });
 Product.hasMany(Size, { foreignKey: 'productId', as: 'sizes' });

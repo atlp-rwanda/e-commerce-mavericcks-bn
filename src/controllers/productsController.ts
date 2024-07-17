@@ -20,7 +20,7 @@ import OrderItems from '../database/models/orderItems';
 export const createProduct = async (req: Request, res: Response) => {
   const transaction = await sequelize.transaction();
   try {
-    const { categoryId, name, description, colors, sizes } = req.body as ProductAttributes & {
+    const { categoryName, name, description, colors, sizes } = req.body as ProductAttributes & {
       sizes: SizeAttributes[];
     };
     const seller = (await req.user) as User;
@@ -56,13 +56,13 @@ export const createProduct = async (req: Request, res: Response) => {
 
     // Create product
     const product = await Product.create(
-      { sellerId, name, description, categoryId, colors, images: productImages },
+      { sellerId, name, description, categoryName, colors, images: productImages },
       { transaction }
     );
 
     // Create sizes
     if (sizes || sizes.length > 0) {
-      for (const sizeData of sizes) {
+      for (const sizeData of JSON.parse(sizes)) {
         await Size.create({ ...sizeData, productId: product.id }, { transaction });
       }
     }
@@ -278,12 +278,42 @@ export const getAllProduct = async (req: Request, res: Response) => {
   }
 };
 
+// Function to get all products by a particular seller
+export const getAllProductsBySeller = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { sellerId } = req.params;
+
+    if (!sellerId) {
+      res.status(400).json({ error: 'Invalid sellerId' });
+      return;
+    }
+
+    const products = await Product.findAll({
+      where: {
+        sellerId,
+      },
+      attributes: ['id', 'name', 'description', 'images', 'categoryName'], // Select only necessary fields
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.status(200).json({
+      ok: true,
+      data: products,
+    });
+  } catch (error) {
+    sendInternalErrorResponse(res, error);
+  }
+};
+
 // a function to get a certain product by ID
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const product = await Product.findByPk(productId, {
-      include: [{ model: Size, as: 'sizes' },{ model: Review, as: 'reviews', include: [{ model: User, as: 'user', attributes: ['photoUrl', 'firstName'] }] },],
+      include: [
+        { model: Size, as: 'sizes' },
+        { model: Review, as: 'reviews', include: [{ model: User, as: 'user', attributes: ['photoUrl', 'firstName'] }] },
+      ],
     });
 
     if (!product) {
@@ -514,4 +544,3 @@ export const calculateAverageRating = async (req: Request, res: Response) => {
     sendInternalErrorResponse(res, error);
   }
 };
-

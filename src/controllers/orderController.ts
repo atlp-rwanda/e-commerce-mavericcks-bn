@@ -174,3 +174,98 @@ export const deleteOrder = async (req: Request, res: Response) => {
     sendInternalErrorResponse(res, error);
   }
 };
+
+// order Items
+export const getOrderItems = async (req: Request, res: Response): Promise<void> => {
+  const { id: userId } = req.user as { id: string };
+  const { orderId } = req.params;
+
+  const transaction = await sequelize.transaction();
+  try {
+    const order = await Order.findOne({
+      where: { id: orderId, userId },
+      include: [
+        {
+          model: OrderItems,
+          as: 'orderItems',
+          include: [
+            {
+              model: Product,
+              as: 'products',
+              include: [
+                {
+                  model: Size,
+                  as: 'sizes',
+                  attributes: ['size', 'price'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      transaction,
+    });
+
+    if (!order) {
+      res.status(404).json({ ok: false, message: 'Order not found' });
+      return;
+    }
+
+    const orderItems = await OrderItems.findAll({ where: { orderId: order.id }, transaction });
+    const allProducts = await Promise.all(
+      orderItems.map(async item => {
+        const product = await Product.findOne({
+          where: { id: item.productId },
+          attributes: ['id', 'name', 'sellerId', 'images'],
+          include: [
+            {
+              model: Size,
+              as: 'sizes',
+              where: { id: item.sizeId },
+              attributes: ['price', 'size', 'id'],
+            },
+          ],
+          transaction,
+        });
+
+        return {
+          product,
+          quantity: item.quantity,
+          price: item.price,
+          createdAt: item.createdAt,
+        };
+      })
+    );
+
+    if (allProducts.length < 1) {
+      res.status(404).json({ ok: false, message: 'No products found in the order' });
+      return;
+    }
+
+    const sendProducts = allProducts
+      .map(item => {
+        if (!item.product) return null;
+        const { id, name, sellerId, images, sizes } = item.product;
+        return {
+          id,
+          name,
+          sizes,
+          sellerId,
+          images,
+          quantity: item.quantity,
+          price: item.price,
+          createdAt: item.createdAt,
+        };
+      })
+      .filter(Boolean);
+
+    await transaction.commit();
+    res.status(200).json({ ok: true, orderId: order.id, orderItems: sendProducts });
+  } catch (error) {
+    await transaction.rollback();
+    logger.error(error);
+    sendInternalErrorResponse(res, error instanceof Error ? error.message : error);
+  }
+};
+
+export default getOrderItems;

@@ -143,7 +143,7 @@ export const getOneUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const user: User | null = await User.findOne({
       where: { id },
-      attributes: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'photoUrl', 'gender'],
+      attributes: ['id', 'firstName', 'lastName', 'email', 'phoneNumber', 'photoUrl', 'gender', 'enable2FA'],
       include: {
         model: Role,
         attributes: ['name'],

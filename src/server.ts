@@ -15,10 +15,12 @@ import scheduledTasks from './config/cornJobs';
 import { socketSetUp } from './chatSetup';
 import { IncomingMessage } from 'http';
 
+import morgan from 'morgan';
 dotenv.config();
 
 export const app: Application = express();
 
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 app.use(cors());
 app.use(passport.initialize());
 app.use(

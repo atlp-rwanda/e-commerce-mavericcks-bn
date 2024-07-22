@@ -115,7 +115,6 @@ export const verifyOTP = async (req: Request, res: Response) => {
   try {
     const data = req.user as JwtPayload;
     const token = await userToken(data.id);
-
     res.status(200).json({ ok: true, token });
   } catch (error) {
     logger.error('VerifyOTP Internal Server Error', error);

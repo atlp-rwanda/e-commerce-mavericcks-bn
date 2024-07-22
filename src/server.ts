@@ -1,4 +1,4 @@
-import { Application, Request, Response } from 'express';
+import { Application, Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import express from 'express';
@@ -64,10 +64,19 @@ schedulePasswordUpdatePrompts();
 databaseConnection();
 scheduledTasks();
 
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  logger.error(err.stack);
+  res.status(500).send({
+    message: err.message,
+    stack: process.env.NODE_ENV === 'production' ? 'Something went wrong!' : err.stack,
+  });
+});
+
 const PORT = process.env.PORT ?? 3000;
 const server = app.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT}`);
 });
 
 socketSetUp(server);
+
 export const io = socketSetUp(server);

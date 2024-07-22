@@ -8,17 +8,22 @@ import { getUserNames } from './helpers/defaultRoleGenerator';
 interface CustomSocket extends Socket {
   userId?: string;
 }
-export const findId = (socket: CustomSocket) => {
+export const findId = async (socket: CustomSocket) => {
   try {
     const { token } = socket.handshake.auth;
+    if (!token) {
+      socket.disconnect();
+      return;
+    }
     const decoded = decodedToken(token);
     const id = typeof decoded === 'string' ? decoded : decoded ? decoded.id : null;
     if (typeof id === 'string') {
-      socket.emit('sendUserId', id);
+      await socket.emit('sendUserId', id);
       socket.userId = id;
       return id;
     } else {
-      throw new Error('Token is not a string');
+      // throw new Error('Token is not a string');
+      logger.error('No Token Provided!');
     }
   } catch (error) {
     logger.error('Error find Id', error);
@@ -39,7 +44,6 @@ const sentMessage = async (socket: CustomSocket, data: Message, io: Server) => {
   if (senderId) {
     try {
       const { content } = data;
-      console.log('--------------messages are here,', data);
       const { firstName } = await getUserNames(socket.userId as string);
 
       const chat = await Chat.create({ senderId, content });
@@ -74,9 +78,19 @@ export const socketSetUp = (server: HttpServer) => {
   });
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   io.use(async (socket: CustomSocket, next) => {
-    const id = findId(socket);
-    socket.userId = id;
-    next();
+    try {
+      const id = await findId(socket);
+      if (typeof id === 'undefined' || id.length < 2) {
+        socket.disconnect();
+        return;
+      }
+      socket.userId = id;
+      next();
+    } catch (err) {
+      const error = err as Error;
+      logger.error(error.stack);
+      next(error);
+    }
   });
 
   io.on('connection', async (socket: CustomSocket) => {

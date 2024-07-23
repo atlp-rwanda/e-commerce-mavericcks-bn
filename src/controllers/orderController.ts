@@ -127,6 +127,7 @@ export const getUserOrders = async (req: Request, res: Response) => {
     return sendInternalErrorResponse(res, err);
   }
 };
+
 export const sellerProductOrders = async (req: Request, res: Response) => {
   try {
     const { id } = req.user as User;
@@ -143,8 +144,14 @@ export const sellerProductOrders = async (req: Request, res: Response) => {
             },
           ],
         },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName'],
+        },
       ],
     });
+
     if (!orders) {
       return sendErrorResponse(res, 'No orders found');
     }
@@ -159,7 +166,6 @@ export const sellerProductOrders = async (req: Request, res: Response) => {
     return sendInternalErrorResponse(res, err);
   }
 };
-
 export const deleteOrder = async (req: Request, res: Response) => {
   try {
     const order = await Order.findByPk(req.params.id);

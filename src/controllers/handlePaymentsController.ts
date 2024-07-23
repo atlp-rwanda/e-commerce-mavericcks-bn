@@ -60,11 +60,14 @@ export const handlePayments = async (req: Request, res: Response) => {
         }
       }
     }
-
+    const successURL =
+      process.env.FRONT_END_BASEURL === ''
+        ? `${process.env.URL_HOST}/success.html`
+        : `${process.env.FRONT_END_BASEURL}/payment/success?ok=true`;
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
-      success_url: `${process.env.URL_HOST}/success.html`,
+      success_url: successURL,
       line_items: lineItems,
       cancel_url: `${process.env.URL_HOST}/cancel.html`,
       metadata: {

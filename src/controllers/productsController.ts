@@ -80,6 +80,7 @@ export const createProduct = async (req: Request, res: Response) => {
 };
 
 export const updateProduct = async (req: Request, res: Response) => {
+  const transaction = await sequelize.transaction();
   try {
     const { productId } = req.params;
 
@@ -87,50 +88,41 @@ export const updateProduct = async (req: Request, res: Response) => {
       name: req.body.name,
       description: req.body.description,
       colors: req.body.colors,
+      categoryName: req.body.categoryName,
     };
 
-    // update images
-    if (req.files) {
-      const product = await Product.findByPk(productId);
-      const foundImages = product?.images;
+    // find product by id
+    const foundProduct = Product.findByPk(productId);
 
-      // delete already existing images
-      if (foundImages instanceof Array) {
-        for (let i = 0; i < foundImages.length; i++) {
-          const strImg = foundImages[i].toString();
-          const imageId = extractImageId(strImg) as string;
-          await destroyImage(imageId);
-          product!.images = [];
-        }
-      }
+    if (!foundProduct) {
+      return res.status(400).json({ message: 'Product not found' });
+    }
 
-      // update new images
-      const images: unknown = req.files;
-      const productImages = [];
-      if (images instanceof Array && images.length > 3) {
-        for (const image of images) {
-          const imageBuffer: Buffer = image.buffer;
-          const url = await uploadImage(imageBuffer);
-          productImages.push(url);
-          Product.update({ images: productImages }, { where: { id: productId } });
-        }
-      } else {
-        return res.status(400).json({
-          message: 'Product should have at least 4 images',
-        });
+    // update product
+    const [affectedRows] = await Product.update(data, { where: { id: productId }, transaction });
+
+    // update sizes if provided
+    if (req.body.sizes) {
+      const sizes = req.body.sizes;
+      for (const sizeData of sizes) {
+        await Size.update({ ...sizeData }, { where: { productId }, transaction });
       }
     }
-    // update product
-    Product.update(data, { where: { id: productId } }).then(() => {
-      res.status(200).json({
+
+    await transaction.commit();
+
+    if (affectedRows !== 0) {
+      return res.status(200).json({
         ok: true,
         message: 'Product updated successfully',
       });
-    });
+    }
   } catch (error) {
+    await transaction.rollback();
     sendInternalErrorResponse(res, error);
   }
 };
+
 // get size
 export const getAllSizes = async (req: Request, res: Response) => {
   try {
@@ -362,7 +354,7 @@ export const deleteProductById = async (req: Request, res: Response) => {
     }
 
     // deleting product related sizes
-    const sizes = await Size.findAll({ where: { id }, transaction });
+    await Size.findAll({ where: { id }, transaction });
     await Size.destroy({ where: { id }, transaction });
 
     // deleting the product itself
